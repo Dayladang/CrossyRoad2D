@@ -1,0 +1,5 @@
+/.vscode
+/build/debug
+program
+sdl2
+.DS_Store

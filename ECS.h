@@ -8,7 +8,7 @@ using namespace std;
 class Component;
 class Entity;
 
-using ComponentID = size_t // dung ten tah ythe cho kieu du lieu
+using ComponentID = size_t ;// dung ten tah ythe cho kieu du lieu
 
 inline ComponentID getComponentTypeID(){
     static ComponentID lastID = 0;
