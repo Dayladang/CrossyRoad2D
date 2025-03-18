@@ -1,4 +1,4 @@
-#ifndef ECS_H
+#ifndef ECS_H //6
 #define ECS_H
 
 #include <bits/stdc++.h>
@@ -18,6 +18,7 @@ inline ComponentID getComponentTypeID(){
 
 template <typename T> //Template cho phép sử dụng kiểu dữ liệu tùy ý 
 inline ComponentID getComponentTypeID() noexcept /*vẫn chưa hiểu noexcept là gì*/{
+    //static_assert (is_base_of <Component, T>::value, "");//
     static ComponentID typeID = getComponentTypeID(); // de nhan vao id do ham get phan phoi
     return typeID;
 } 
@@ -44,16 +45,17 @@ class Entity{
 
 private:
     bool active = true;
-    vector <unique_ptr<Component>> components;//
+    vector <unique_ptr<Component>> components;// tạo một vector các component
 
-    ComponentArray componentArray;//một mảng lưu trữ các components thông qua các một ID kiểu T 
+    ComponentArray componentArray = {};//một mảng lưu trữ các components thông qua các một ID kiểu T 
     ComponentBitSet componentBitSet;//một mảng xác định xem có những component nào gắn với entity đang xét
 public:
     void update(){
-        for (auto& c : components) c->update();// tror đến hàm update ảo của Component vì c giờ là nắm địa chỉ của vector components kiểu con trỏ quản lí class Component
-        for (auto& c : components) c->draw(); 
+        for (auto& c : components) c->update();// tror đến hàm update ảo của Component vì c giờ là nắm địa chỉ của vector components kiểu con trỏ quản lí class Component        
     }
-    void draw() {};
+    void draw() {
+        for (auto& c : components) c->draw();
+    }
     bool isActive() { return active; }
     void destroy() { active = false; }
 
@@ -67,13 +69,16 @@ public:
     // thêm component cho entity
     template <typename T, typename... TArgs>//'typename... Targs ' dấu '...' nghĩa là nó có thể nhận một danh sách các kiểu dữ liệu (không kiểu nào hoặc nhiều kiểu)
     T& addComponent(TArgs&&... mArgs){//Hàm trả về một tham chiếu đến đối tượng kiểu T
-        T* c(new T(forward<TArgs>(mArgs)...));//Nếu mArgs là r-value, nó sẽ được truyền như r-value bằng std::forward -> tăng hiệu suất. Tạm thời hiểu vậy
-        
-        componentArray[getComponentTypeID<T>()] = c;//gán ID theo kiểu T làm chỉ số lưu trữ ID của component. c là con trỏ component lấy dc từ hàm add và sẽ dc lưu trong componentArray
+        T* a = new T(forward<TArgs>(mArgs)...);//Nếu mArgs là r-value, nó sẽ được truyền như r-value bằng std::forward -> tăng hiệu suất. Tạm thời hiểu vậy
+        a->entity = this; //
+        unique_ptr<Component> uPtr { a };
+        components.emplace_back( move( uPtr ));
+
+        componentArray[getComponentTypeID<T>()] = a;//gán ID theo kiểu T làm chỉ số lưu trữ ID của component. c là con trỏ component lấy dc từ hàm add và sẽ dc lưu trong componentArray
         componentBitSet[getComponentTypeID<T>()] = true; // true là component đã dc thêm vào hệ thống
 
-        c->init();// khởi tạo component mới dc thêm vào
-        return *c;// trả về component dc thêm và CHO PHÉP THAO TÁC  với nó
+        a->init();// khởi tạo component mới dc thêm vào
+        return *a;// trả về component dc thêm và CHO PHÉP THAO TÁC  với nó
     }
 
     template<typename T> 
@@ -88,7 +93,7 @@ public:
 class Manager{
 
 private:
-    vector< unique_ptr<Entity> > entities;
+    vector< unique_ptr<Entity> > entities; // tạo một vector các entity
 
 public:
     void update(){

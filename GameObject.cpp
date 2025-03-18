@@ -22,6 +22,7 @@ GameObject::~GameObject(){
 void GameObject::Update(){
 
     xpos--;
+    if (xpos <= WIDTH / 2) ypos++;
     //ypos++;
 
     // srcRect.w = 50;

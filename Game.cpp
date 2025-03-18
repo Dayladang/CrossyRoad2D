@@ -1,20 +1,16 @@
 #include "Game.h"
-#include "GameObject.h"
 #include "Map.h"
-#include "ECS.h"
-#include "Components.h"
+#include "ECS/Components.h"
 
 using namespace std;
 
-GameObject* player;//4 
-GameObject* ngu;//4
-Map* map; //5
-
+Map* map1; //5
 
 SDL_Renderer* Game::renderer = NULL; //5
 
-Manager::manager;
-auto& newPlayer(manager.addEntity());
+Manager manager;//6
+Entity& player = manager.addEntity();//6
+Entity& character = manager.addEntity();//6
 
 Game::Game(){}
 
@@ -51,31 +47,43 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     isRunning = true;
 
-    player = new GameObject("imgs/car.png", WIDTH, 0);//4
-    ngu = new GameObject("imgs/car2.png", WIDTH, 50);//4
-    map = new Map();//5
+    map1 = new Map();//5
 
-    newPlayer.addComponent<PositionComponent>();
+    player.addComponent<PositionComponent>(WIDTH + 100, 0, 0, 0);
+    player.addComponent<SpriteComponent>("imgs/car.png");
+    character.addComponent<PositionComponent>(WIDTH / 2, HEIGHT, 0, 0);
+    character.addComponent<SpriteComponent>("imgs/car2.png");
 }
 
 void Game::handleEvents(){
     SDL_Event event;
     SDL_PollEvent(&event);
+
     if(event.type == SDL_QUIT) isRunning = false;
-    const Uint8* check = SDL_GetKeyboardState(NULL);
-    if(check[SDL_SCANCODE_ESCAPE]) isRunning = false;
+
+    else if ( event.type == SDL_KEYDOWN ){
+        const Uint8* check = SDL_GetKeyboardState(NULL);
+        if(check[SDL_SCANCODE_ESCAPE]) isRunning = false;
+        else if (check[SDL_SCANCODE_UP]) character.getComponent<PositionComponent>().setVelocity(0, -1);
+        else if (check[SDL_SCANCODE_DOWN]) character.getComponent<PositionComponent>().setVelocity(0, 1);
+        else if (check[SDL_SCANCODE_RIGHT]) character.getComponent<PositionComponent>().setVelocity(1, 0);
+        else if (check[SDL_SCANCODE_LEFT]) character.getComponent<PositionComponent>().setVelocity(-1, 0);
+    }
+
+    else if ( event.type == SDL_KEYUP ){
+        character.getComponent<PositionComponent>().setVelocity(0, 0); // để vật không bị trôi 
+    }
 }
 
 void Game::update(){
-    player->Update();//4
-    ngu->Update();//4
+    manager.refresh();//8
+    manager.update();//6
 }
 
 void Game::render(){
     SDL_RenderClear(renderer);
-    map->DrawMap(); // ve map trc roi moi den nhan vat//5
-    player->Render();//4
-    ngu->Render();//4
+    map1->DrawMap(); // ve map trc roi moi den nhan vat//5
+    manager.draw();
     SDL_RenderPresent(renderer);
 }
 
