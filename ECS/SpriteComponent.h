@@ -8,19 +8,23 @@
 class SpriteComponent : public Component {
 
 private:
-    PositionComponent* position;
+    TransformComponent* transform;
     SDL_Texture* texture;
     SDL_Rect srcRect, destRect;
 
 public:
     SpriteComponent() = default;
     SpriteComponent(const char* link){
+        setTex(link);
+    }
+
+    void setTex(const char* link){
         texture = IMG_LoadTexture(Game::renderer, link);
     }
 
     void init () override {
 
-        position = &entity->getComponent<PositionComponent>();
+        transform = &entity->getComponent<TransformComponent>();
 
         srcRect.x = srcRect.y = 0;
         destRect.w = srcRect.w = 75; 
@@ -28,11 +32,11 @@ public:
     }
 
     void update() override {
-        destRect.x = position->x();
-        destRect.y = position->y();
+        destRect.x = transform->position.x;
+        destRect.y = transform->position.y;
 
         if (destRect.x < 0 - 100) {
-            position->x(WIDTH + 100); // Đặt lại vị trí x để xuất hiện từ phía bên trái
+            transform->position.x = WIDTH + 100; // Đặt lại vị trí x để xuất hiện từ phía bên trái
         }
     }
 

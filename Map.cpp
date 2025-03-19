@@ -1,13 +1,13 @@
 #include "Map.h" //5
 
 int maplv1[2][1] = {
-    {2},
-    {0}
+    {0},
+    {1}
 };
 
 Map::Map(){
     dirt = IMG_LoadTexture(Game::renderer, "imgs/dirt.png");
-    grass= IMG_LoadTexture(Game::renderer, "imgs/grass2.png");
+    grass= IMG_LoadTexture(Game::renderer, "imgs/grass.png");
     water = IMG_LoadTexture(Game::renderer, "imgs/water.png");
 
     LoadMap(maplv1);

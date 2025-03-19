@@ -26,7 +26,7 @@ inline ComponentID getComponentTypeID() noexcept /*vẫn chưa hiểu noexcept l
 
 const size_t maxComponents = 32;
 
-using ComponentBitSet = bitset<maxComponents>;// quanr lí thông tin dưới dạn 1,0
+using ComponentBitSet = bitset<maxComponents>;// quanr lí thông tin dưới dạn 1,0 kiểu đúng hoặc sai ( có vẻ cũng giống bool)
 using ComponentArray = array<Component*, maxComponents>;// cũng giống như mảng một chiều, <kiểu dữ liệ, số lượng phần tử > tên mảng
 
 class Component{
@@ -70,9 +70,9 @@ public:
     template <typename T, typename... TArgs>//'typename... Targs ' dấu '...' nghĩa là nó có thể nhận một danh sách các kiểu dữ liệu (không kiểu nào hoặc nhiều kiểu)
     T& addComponent(TArgs&&... mArgs){//Hàm trả về một tham chiếu đến đối tượng kiểu T
         T* a = new T(forward<TArgs>(mArgs)...);//Nếu mArgs là r-value, nó sẽ được truyền như r-value bằng std::forward -> tăng hiệu suất. Tạm thời hiểu vậy
-        a->entity = this; //
+        a->entity = this; // trỏ đến entity của class Component và nói rằng đây chính là entity của component mới được tạo ra
         unique_ptr<Component> uPtr { a };
-        components.emplace_back( move( uPtr ));
+        components.emplace_back( move( uPtr )); //chuyển quyền sở hữu a từ uPtr vào trong vector các component
 
         componentArray[getComponentTypeID<T>()] = a;//gán ID theo kiểu T làm chỉ số lưu trữ ID của component. c là con trỏ component lấy dc từ hàm add và sẽ dc lưu trong componentArray
         componentBitSet[getComponentTypeID<T>()] = true; // true là component đã dc thêm vào hệ thống

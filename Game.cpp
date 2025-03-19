@@ -1,6 +1,7 @@
 #include "Game.h"
 #include "Map.h"
 #include "ECS/Components.h"
+#include "Vector2D.h"
 
 using namespace std;
 
@@ -49,9 +50,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     map1 = new Map();//5
 
-    player.addComponent<PositionComponent>(WIDTH + 100, 0, 0, 0);
+    player.addComponent<TransformComponent>(WIDTH + 100, 0, -1, 0);
     player.addComponent<SpriteComponent>("imgs/car.png");
-    character.addComponent<PositionComponent>(WIDTH / 2, HEIGHT, 0, 0);
+    character.addComponent<TransformComponent>(WIDTH / 2, HEIGHT, 0, 0);
     character.addComponent<SpriteComponent>("imgs/car2.png");
 }
 
@@ -64,20 +65,27 @@ void Game::handleEvents(){
     else if ( event.type == SDL_KEYDOWN ){
         const Uint8* check = SDL_GetKeyboardState(NULL);
         if(check[SDL_SCANCODE_ESCAPE]) isRunning = false;
-        else if (check[SDL_SCANCODE_UP]) character.getComponent<PositionComponent>().setVelocity(0, -1);
-        else if (check[SDL_SCANCODE_DOWN]) character.getComponent<PositionComponent>().setVelocity(0, 1);
-        else if (check[SDL_SCANCODE_RIGHT]) character.getComponent<PositionComponent>().setVelocity(1, 0);
-        else if (check[SDL_SCANCODE_LEFT]) character.getComponent<PositionComponent>().setVelocity(-1, 0);
+        else if (check[SDL_SCANCODE_UP]) character.getComponent<TransformComponent>().setVelocity(0, -1);
+        else if (check[SDL_SCANCODE_DOWN]) character.getComponent<TransformComponent>().setVelocity(0, 1);
+        else if (check[SDL_SCANCODE_RIGHT]) character.getComponent<TransformComponent>().setVelocity(1, 0);
+        else if (check[SDL_SCANCODE_LEFT]) character.getComponent<TransformComponent>().setVelocity(-1, 0);
     }
 
     else if ( event.type == SDL_KEYUP ){
-        character.getComponent<PositionComponent>().setVelocity(0, 0); // để vật không bị trôi 
+        character.getComponent<TransformComponent>().setVelocity(0, 0); // để vật không bị trôi 
     }
 }
 
 void Game::update(){
     manager.refresh();//8
-    manager.update();//6
+    manager.update();//6 
+
+    if (character.getComponent<TransformComponent>().position.y < HEIGHT / 2) {
+        character.getComponent<SpriteComponent>().setTex("imgs/car.png");
+    }
+    else if (character.getComponent<TransformComponent>().position.y > HEIGHT / 2){
+        character.getComponent<SpriteComponent>().setTex("imgs/car2.png");
+    }
 }
 
 void Game::render(){
