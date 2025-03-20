@@ -11,24 +11,31 @@ class TransformComponent : public Component {
         Vector2D position;
         Vector2D velocity;
 
+        int speed = 1;
+
         TransformComponent(){
             position.x = 0;
             position.y = 0;
-            velocity.x = 0;
-            velocity.y = 0;
+            
         }
 
-        TransformComponent(float x, float y, int vx, int vy){
+        TransformComponent(int x, int y, int vx, int vy){
             position.x = x;
             position.y = y;
             velocity.x = vx;
             velocity.y = vy;
         }
     
+        void init() override {
+            velocity.x = 0;
+            velocity.y = 0;
+        }
+
         void update() override { // ghi đè lên , định nghĩa lại hàm init() từ lớp Component cha
             //xpos++;
             //ypos++;
-            position += velocity;
+            position.x += velocity.x * speed;
+            position.y += velocity.y * speed;
         }
         
         void setPosition(int x, int y) {

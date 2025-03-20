@@ -2,6 +2,7 @@
 #include "Game.cpp"//2
 #include "GameObject.cpp"//4
 #include "Map.cpp"//5
+#include "Vector2D.cpp"//8
 
 using namespace std;
 /* //thuật toán quicksort

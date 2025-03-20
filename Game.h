@@ -23,7 +23,7 @@ public:
     void quit();
 
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
-
+    static SDL_Event event;
 private:
     int cnt = WIDTH;
     bool isRunning;

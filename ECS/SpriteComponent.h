@@ -27,8 +27,10 @@ public:
         transform = &entity->getComponent<TransformComponent>();
 
         srcRect.x = srcRect.y = 0;
-        destRect.w = srcRect.w = 75; 
-        destRect.h = srcRect.h = 50;    
+        destRect.w = 75;
+        srcRect.w = 30; 
+        destRect.h = 50;
+        srcRect.h = 15;    
     }
 
     void update() override {
