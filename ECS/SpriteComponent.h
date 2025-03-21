@@ -14,8 +14,13 @@ private:
 
 public:
     SpriteComponent() = default;
+
     SpriteComponent(const char* link){
         setTex(link);
+    }
+
+    ~SpriteComponent(){
+        SDL_DestroyTexture(texture);
     }
 
     void setTex(const char* link){
@@ -26,19 +31,23 @@ public:
 
         transform = &entity->getComponent<TransformComponent>();
 
-        srcRect.x = srcRect.y = 0;
-        destRect.w = 75;
-        srcRect.w = 30; 
-        destRect.h = 50;
-        srcRect.h = 15;    
+        srcRect.x = srcRect.y = 0; 
+        srcRect.w = transform->width;    
+        srcRect.h = transform->height;    
     }
 
     void update() override {
         destRect.x = transform->position.x;
         destRect.y = transform->position.y;
 
+        destRect.w = transform->width * transform->scale;
+        destRect.h = transform->height * transform->scale;
+
         if (destRect.x < 0 - 100) {
             transform->position.x = WIDTH + 100; // Đặt lại vị trí x để xuất hiện từ phía bên trái
+        }
+        else if (destRect.x > WIDTH + 100){
+            transform->position.x = 0 - 100;
         }
     }
 

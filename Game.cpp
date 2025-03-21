@@ -1,7 +1,8 @@
 #include "Game.h"
-#include "Map.h"
+#include "Map.cpp"//5
 #include "ECS/Components.h"
-#include "Vector2D.h"
+#include "Vector2D.cpp"//8
+#include "Collision.cpp"//10
 
 using namespace std;
 
@@ -14,6 +15,7 @@ SDL_Event Game::event;//9
 Manager manager;//6
 Entity& player = manager.addEntity();//6
 Entity& character = manager.addEntity();//6
+Entity& wall = manager.addEntity(); //10
 
 Game::Game(){}
 
@@ -55,8 +57,15 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addComponent<TransformComponent>();
     player.addComponent<SpriteComponent>("imgs/car.png");
     player.addComponent<KeyboardController>();
-    character.addComponent<TransformComponent>();
+    player.addComponent<ColliderComponent>("player");
+
+    character.addComponent<TransformComponent>(WIDTH / 2, 0, -1, 0);
     character.addComponent<SpriteComponent>("imgs/car2.png");
+    character.addComponent<ColliderComponent>("character");
+
+    wall.addComponent<TransformComponent>(300, 300, 300, 20, 1);
+    wall.addComponent<SpriteComponent>("imgs/dirt.png");
+    wall.addComponent<ColliderComponent>("wall");
 
 }
 
@@ -77,12 +86,19 @@ void Game::update(){
     manager.refresh();//8
     manager.update();//6 
 
-    // if (character.getComponent<TransformComponent>().position.y < HEIGHT / 2) {
-    //     character.getComponent<SpriteComponent>().setTex("imgs/car.png");
-    // }
-    // else if (character.getComponent<TransformComponent>().position.y > HEIGHT / 2){
-    //     character.getComponent<SpriteComponent>().setTex("imgs/car2.png");
-    // }
+    if (player.getComponent<TransformComponent>().position.y < HEIGHT / 2) {
+        player.getComponent<SpriteComponent>().setTex("imgs/car.png");
+    }
+    else if (player.getComponent<TransformComponent>().position.y > HEIGHT / 2){
+        player.getComponent<SpriteComponent>().setTex("imgs/car2.png");
+    }
+
+    if(Collision::AABB(player.getComponent<ColliderComponent>().collider, wall.getComponent<ColliderComponent>().collider)){
+        player.getComponent<TransformComponent>().setVelocity(0, 0);
+        cout << "đâm rồi thằng ngu" << endl;
+        SDL_Delay(1000);
+        isRunning  = false;
+    }
 }
 
 void Game::render(){
