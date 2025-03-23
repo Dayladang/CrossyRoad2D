@@ -4,6 +4,10 @@
 #include "Components.h"
 #include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL.h"
 #include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\Game.h"
+#include "Animation.h"
+#include  <bits/stdc++.h>
+
+using namespace std;
 
 class SpriteComponent : public Component {
 
@@ -12,10 +16,46 @@ private:
     SDL_Texture* texture;
     SDL_Rect srcRect, destRect;
 
+    bool animated = false;
+    int frames = 0;
+    int speed = 100; // 100ms
+
 public:
+
+    int animIndex = 0; // chỉ số của animation
+
+    map<const char*, Animation> animations; // Lưu trữ các animation
+
     SpriteComponent() = default;
 
     SpriteComponent(const char* link){
+        setTex(link);
+    }
+
+    SpriteComponent(const char* link, bool isAnimated){
+
+        animated = isAnimated;
+
+        Animation frontidle = Animation(0, 2, 200);
+        Animation leftwalk = Animation(1, 5, 100);
+        Animation rightwalk = Animation(2, 5, 100);
+        Animation frontwalk = Animation(3, 5, 100);
+        Animation backwalk = Animation(4, 5, 100);
+        Animation backidle = Animation(5, 2, 200);
+        Animation leftidle = Animation(6, 2, 200);
+        Animation rightidle = Animation(7, 2, 200);
+
+        animations.emplace("FrontIdle", frontidle); // thêm animation vào map
+        animations.emplace("Leftwalk", leftwalk);
+        animations.emplace("Rightwalk", rightwalk);
+        animations.emplace("Frontwalk", frontwalk);
+        animations.emplace("Backwalk", backwalk);
+        animations.emplace("BackIdle", backidle);
+        animations.emplace("LeftIdle", leftidle);
+        animations.emplace("RightIdle", rightidle);
+
+        Play("FrontIdle");
+
         setTex(link);
     }
 
@@ -37,6 +77,13 @@ public:
     }
 
     void update() override {
+
+        if (animated){
+            srcRect.x = srcRect.w * static_cast<int>((SDL_GetTicks() / speed) % frames);
+        }
+
+        srcRect.y = animIndex * transform->height; // đặt vị trí cuat y cho animation
+
         destRect.x = transform->position.x;
         destRect.y = transform->position.y;
 
@@ -52,7 +99,13 @@ public:
     }
 
     void draw () override {
-        SDL_RenderCopy(Game::renderer, texture, NULL, &destRect);
+        SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
+    }
+
+    void Play(const char* animName){
+        frames = (animations[animName]).frames;// animations[animName] la second
+        animIndex = (animations[animName]).index;
+        speed = (animations[animName]).speed; 
     }
 };
 

@@ -9,9 +9,11 @@ class KeyboardController : public Component {
 
 public :
     TransformComponent *transform;
+    SpriteComponent* sprite;
 
     void init() override {
         transform = &entity->getComponent<TransformComponent>();
+        sprite = &entity->getComponent<SpriteComponent>();
     }
 
     void update() override {
@@ -19,20 +21,47 @@ public :
             if ( Game::event.type == SDL_KEYDOWN ){
                 const Uint8* check = SDL_GetKeyboardState(NULL);
 
-                if (check[SDL_SCANCODE_UP] || check[SDL_SCANCODE_W]) transform->velocity.y = -1;
-                if (check[SDL_SCANCODE_DOWN] || check[SDL_SCANCODE_S]) transform->velocity.y = 1;
-                if (check[SDL_SCANCODE_RIGHT] || check[SDL_SCANCODE_D]) transform->velocity.x = 1;
-                if (check[SDL_SCANCODE_LEFT] || check[SDL_SCANCODE_A]) transform->velocity.x = -1;
+                if (check[SDL_SCANCODE_UP] || check[SDL_SCANCODE_W]) {
+                    transform->velocity.y = -1;
+                    sprite->Play("Backwalk");
+                }
+                if (check[SDL_SCANCODE_DOWN] || check[SDL_SCANCODE_S]) {
+                    transform->velocity.y = 1;
+                    sprite->Play("Frontwalk");
+                }
+                if (check[SDL_SCANCODE_RIGHT] || check[SDL_SCANCODE_D]) {
+                    transform->velocity.x = 1;
+                    sprite->Play("Rightwalk");
+                } 
+                if (check[SDL_SCANCODE_LEFT] || check[SDL_SCANCODE_A]) {
+                    transform->velocity.x = -1;
+                    sprite->Play("Leftwalk");
+                }
                 if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 3;
             }
 
             else if ( Game::event.type == SDL_KEYUP ){
+                // transform->setVelocity(0,0);
+                // sprite->Play("Idle");
+
                 const Uint8* check = SDL_GetKeyboardState(NULL);
 
-                if (check[SDL_SCANCODE_UP] || check[SDL_SCANCODE_W]) transform->setVelocity(0,0);
-                if (check[SDL_SCANCODE_DOWN] || check[SDL_SCANCODE_S]) transform->setVelocity(0,0);
-                if (check[SDL_SCANCODE_RIGHT] || check[SDL_SCANCODE_D]) transform->setVelocity(0,0);
-                if (check[SDL_SCANCODE_LEFT] || check[SDL_SCANCODE_A]) transform->setVelocity(0,0);
+                if (check[SDL_SCANCODE_UP] || check[SDL_SCANCODE_W]){
+                    transform->setVelocity(0,0);
+                    sprite->Play("BackIdle");
+                } 
+                if (check[SDL_SCANCODE_DOWN] || check[SDL_SCANCODE_S]) {
+                    transform->setVelocity(0,0);
+                    sprite->Play("FrontIdle");
+                } 
+                if (check[SDL_SCANCODE_RIGHT] || check[SDL_SCANCODE_D]) {
+                    transform->setVelocity(0,0);
+                    sprite->Play("RightIdle");
+                } 
+                if (check[SDL_SCANCODE_LEFT] || check[SDL_SCANCODE_A]) {
+                    transform->setVelocity(0,0);
+                    sprite->Play("LeftIdle");
+                } 
                 if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 1;
             }
         }

@@ -54,8 +54,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     map1 = new Map();//5
 
-    player.addComponent<TransformComponent>();
-    player.addComponent<SpriteComponent>("imgs/car.png");
+    player.addComponent<TransformComponent>(0, 0, 24, 24, 3);
+    player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
 
@@ -86,12 +86,12 @@ void Game::update(){
     manager.refresh();//8
     manager.update();//6 
 
-    if (player.getComponent<TransformComponent>().position.y < HEIGHT / 2) {
-        player.getComponent<SpriteComponent>().setTex("imgs/car.png");
-    }
-    else if (player.getComponent<TransformComponent>().position.y > HEIGHT / 2){
-        player.getComponent<SpriteComponent>().setTex("imgs/car2.png");
-    }
+    // if (player.getComponent<TransformComponent>().position.y < HEIGHT / 2) {
+    //     player.getComponent<SpriteComponent>().setTex("imgs/chickenright.png");
+    // }
+    // else if (player.getComponent<TransformComponent>().position.y > HEIGHT / 2){
+    //     player.getComponent<SpriteComponent>().setTex("imgs/chickenleft.png");
+    // }
 
     if(Collision::AABB(player.getComponent<ColliderComponent>().collider, wall.getComponent<ColliderComponent>().collider)){
         player.getComponent<TransformComponent>().setVelocity(0, 0);

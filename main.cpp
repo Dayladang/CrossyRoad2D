@@ -27,7 +27,7 @@ Game* game = NULL;
 
 int main(int argc, char* argv[]){
 
-    const int FPS = 120;//3
+    const int FPS = 60;//3
     const int FrameDelay = 1000 / FPS;//3
     Uint32 FrameRun;//3
     int Frametime;//3

@@ -31,6 +31,10 @@ public:
         collider.y = transform->position.y;
         collider.w = transform->width * transform->scale;
         collider.h = transform->height * transform->scale; 
+
+        // In thông tin collider để kiểm tra
+        cout << "Collider: (" << collider.x << ", " << collider.y << ", " 
+                    << collider.w << ", " << collider.h << ")" << endl;
     }
 
 };
