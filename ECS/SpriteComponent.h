@@ -36,25 +36,19 @@ public:
 
         animated = isAnimated;
 
-        Animation frontidle = Animation(0, 2, 200);
+        Animation idle = Animation(0, 2, 200);
         Animation leftwalk = Animation(1, 5, 100);
         Animation rightwalk = Animation(2, 5, 100);
         Animation frontwalk = Animation(3, 5, 100);
         Animation backwalk = Animation(4, 5, 100);
-        Animation backidle = Animation(5, 2, 200);
-        Animation leftidle = Animation(6, 2, 200);
-        Animation rightidle = Animation(7, 2, 200);
 
-        animations.emplace("FrontIdle", frontidle); // thêm animation vào map
+        animations.emplace("Idle", idle); // thêm animation vào map
         animations.emplace("Leftwalk", leftwalk);
         animations.emplace("Rightwalk", rightwalk);
         animations.emplace("Frontwalk", frontwalk);
         animations.emplace("Backwalk", backwalk);
-        animations.emplace("BackIdle", backidle);
-        animations.emplace("LeftIdle", leftidle);
-        animations.emplace("RightIdle", rightidle);
 
-        Play("FrontIdle");
+        Play("Idle");
 
         setTex(link);
     }

@@ -11,15 +11,15 @@ class TransformComponent : public Component {
         Vector2D position;
         Vector2D velocity;
 
-        int height = 16;
-        int width = 32;
-        int scale = 2;
+        int height ;
+        int width ;
+        int scale ;
 
         int speed = 1;
 
         TransformComponent(){
-            position.x = 0;
-            position.y = 0;
+            // position.x = 0;
+            // position.y = 0;
             
         }
 
@@ -36,12 +36,14 @@ class TransformComponent : public Component {
             velocity.y = vy;
         }
 
-        TransformComponent(int x, int y, int h, int w, int s){
+        TransformComponent(int x, int y, int w, int h, int s, int vx, int vy){
             position.x = x;
             position.y = y;
-            height = h;
             width = w;
+            height = h;
             scale = s;
+            velocity.x = vx;
+            velocity.y = vy;
         }
     
         void init() override {

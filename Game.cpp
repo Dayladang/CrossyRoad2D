@@ -14,7 +14,8 @@ SDL_Event Game::event;//9
 
 Manager manager;//6
 Entity& player = manager.addEntity();//6
-Entity& character = manager.addEntity();//6
+Entity& car = manager.addEntity();//6
+Entity& car2 = manager.addEntity();
 Entity& wall = manager.addEntity(); //10
 
 Game::Game(){}
@@ -54,18 +55,18 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     map1 = new Map();//5
 
-    player.addComponent<TransformComponent>(0, 0, 24, 24, 3);
+    player.addComponent<TransformComponent>(WIDTH / 2, 580, 24, 24, 1, 0, 0);
     player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
 
-    character.addComponent<TransformComponent>(WIDTH / 2, 0, -1, 0);
-    character.addComponent<SpriteComponent>("imgs/car2.png");
-    character.addComponent<ColliderComponent>("character");
+    car.addComponent<TransformComponent>(WIDTH + 100, 370, 75, 44, 1, -10, 0);
+    car.addComponent<SpriteComponent>("imgs/taxi.png");
+    car.addComponent<ColliderComponent>("car");
 
-    wall.addComponent<TransformComponent>(300, 300, 300, 20, 1);
-    wall.addComponent<SpriteComponent>("imgs/dirt.png");
-    wall.addComponent<ColliderComponent>("wall");
+    car2.addComponent<TransformComponent>(-100, 430, 84, 43, 1, 3, 0);  
+    car2.addComponent<SpriteComponent>("imgs/truck.png");
+    car2.addComponent<ColliderComponent>("truck");
 
 }
 
@@ -93,11 +94,18 @@ void Game::update(){
     //     player.getComponent<SpriteComponent>().setTex("imgs/chickenleft.png");
     // }
 
-    if(Collision::AABB(player.getComponent<ColliderComponent>().collider, wall.getComponent<ColliderComponent>().collider)){
+    if(Collision::AABB(player.getComponent<ColliderComponent>().collider, car.getComponent<ColliderComponent>().collider)){
+        player.getComponent<TransformComponent>().setVelocity(0, 0);       
+        cout << "đâm rồi thằng ngu" << endl;
+        SDL_Delay(5000);
+        isRunning = false;
+    }
+
+    if(Collision::AABB(player.getComponent<ColliderComponent>().collider, car2.getComponent<ColliderComponent>().collider)){
         player.getComponent<TransformComponent>().setVelocity(0, 0);
         cout << "đâm rồi thằng ngu" << endl;
-        SDL_Delay(1000);
-        isRunning  = false;
+        SDL_Delay(5000);
+        isRunning = false;
     }
 }
 

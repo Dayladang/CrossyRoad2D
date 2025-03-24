@@ -21,7 +21,7 @@ private:
     SDL_Texture* grass;
     SDL_Texture* water;
 
-    int map[2][1];
+    int map[1][1];
 };
 
 #endif

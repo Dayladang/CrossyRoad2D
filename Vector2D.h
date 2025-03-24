@@ -23,6 +23,10 @@ public:
     Vector2D& operator+= (const Vector2D& vec);
     Vector2D& operator-= (const Vector2D& vec);
 
+    Vector2D& operator* (const int& i); nhân vector với một số nguyên
+    Vector2D& Zero(); // gán vector về 0
+
+    friend ostream& operator<< (ostream& stream, const Vector2D& vec); // in ra Vector
 };
 
 #endif
