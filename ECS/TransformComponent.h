@@ -18,14 +18,12 @@ class TransformComponent : public Component {
         int speed = 1;
 
         TransformComponent(){
-            // position.x = 0;
-            // position.y = 0;
+            position.Zero();
             
         }
 
         TransformComponent(int s){
-            position.x = 0;
-            position.y = 0;
+            position.Zero();
             scale = s;
         }
 
@@ -47,23 +45,12 @@ class TransformComponent : public Component {
         }
     
         void init() override {
-            // velocity.x = 0;
-            // velocity.y = 0; // nếu muốn vật có velocity ngay từ đầu thì không dùng dòng này vid sẽ bị đè lên = 0 nếu khởi động chương trình 
+            //velocity.Zero(); // nếu muốn vật có velocity ngay từ đầu thì không dùng dòng này vid sẽ bị đè lên = 0 nếu khởi động chương trình 
         }
 
         void update() override { // ghi đè lên , định nghĩa lại hàm init() từ lớp Component cha
             position.x += velocity.x * speed;
             position.y += velocity.y * speed;
-        }
-        
-        void setPosition(int x, int y) {
-            position.x = x;
-            position.y = y;
-        }
-
-        void setVelocity(int vx, int vy) {
-            velocity.x = vx;
-            velocity.y = vy;
         }
 
         Vector2D getPosition() const { return position; }

@@ -41,7 +41,7 @@ public :
             }
 
             else if ( Game::event.type == SDL_KEYUP ){
-                transform->setVelocity(0,0);
+                transform->velocity.Zero();
                 sprite->Play("Idle");
 
                 const Uint8* check = SDL_GetKeyboardState(NULL);

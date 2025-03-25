@@ -2,12 +2,17 @@
 #define GRAPHIC_H
 
 #include <iostream>
+#include <vector>
 #include "C:\Users\ADMIN\OneDrive\Documents\coding stuff\DUT_CAN_TRI\src\include\SDL2\SDL.h"
 #include "C:\Users\ADMIN\OneDrive\Documents\coding stuff\DUT_CAN_TRI\src\include\SDL2\SDL_image.h"
+
+using namespace std;
 
 const int WIDTH = 800;
 const int HEIGHT = 640;
 const char* WINDOW_TITLE = " Game Time !";
+
+class ColliderComponent;
 
 class Game{
 
@@ -24,6 +29,8 @@ public:
 
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
+    static vector<ColliderComponent*> colliders;
+
 private:
     int cnt = WIDTH;
     bool isRunning;
