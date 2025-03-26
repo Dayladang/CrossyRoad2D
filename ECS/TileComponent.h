@@ -2,48 +2,44 @@
 #define TILECOMPONENT_H
 
 #include "ECS.h"
-#include "TransformComponent.h"
-#include "SpriteComponent.h"
 #include <SDL2/SDL.h>
 
 class TileComponent : public Component {
 
 public :
-    TransformComponent* transform;
-    SpriteComponent* sprite;
 
-    SDL_Rect tileRect;
-    int tileID; //
-    const char* path;
-
+    SDL_Texture* texture;
+    SDL_Rect srcRect, destRect;
+    
     TileComponent() = default;
 
-    TileComponent(int x, int y, int w, int h, int id){
-        tileRect.x = x;
-        tileRect.y = y;
-        tileRect.w = w;
-        tileRect.h = h;
-        tileID = id;
-
-        if (tileID == 0){
-            path = "imgs/water.png";
-        }
-        else if (tileID == 1){
-            path = "imgs/dirt.png";
-        }
-        else if (tileID == 2){
-            path = "imgs/grass.png";
-        }
+    ~TileComponent(){
+        SDL_DestroyTexture(texture);
     }
 
-    void init() override {
-        entity->addComponent<TransformComponent>(tileRect.x, tileRect.y, tileRect.w, tileRect.h, 1, 0, 0);
-        transform = &entity->getComponent<TransformComponent>();
+    TileComponent(int srcX, int srcY, int xpos, int ypos, const char* path){
+        texture = IMG_LoadTexture(Game::renderer, path);
+        if (!texture){
+            cerr << "loi khoi tao Texture" << SDL_GetError() << endl;
+        }
 
+        srcRect.x = srcX;
+        srcRect.y = srcY;
+        srcRect.w = srcRect.h = 32; //kích thước của tile gốc 
 
-        entity->addComponent<SpriteComponent>(path);
-        sprite = &entity->getComponent<SpriteComponent>();
+        destRect.x = xpos;
+        destRect.y = ypos;
+        destRect.w = 32; //kích thước của tile sau khi scale
+        destRect.h = 32;
     }
+
+    void draw() override {
+        //cout << "draw Tile" << endl;
+        SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
+    }
+
+
+
 };
 
 #endif

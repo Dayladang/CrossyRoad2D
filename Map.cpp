@@ -1,53 +1,72 @@
 #include "Map.h" //5
+#include "Game.h"
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
 
-int maplv1[1][1] = {
-    {0}
-};
+using namespace std;
 
 Map::Map(){
-    dirt = IMG_LoadTexture(Game::renderer, "imgs/map.png");
-    grass= IMG_LoadTexture(Game::renderer, "imgs/grass.png");
-    water = IMG_LoadTexture(Game::renderer, "imgs/water.png");
 
-    LoadMap(maplv1);
-
-    src.x = src.y = 0;
-    src.w = src.h = 96;
-    dest.w = WIDTH;
-    dest.h = HEIGHT;
-
-    dest.x = dest.y = 0;
 }
 
 Map::~Map(){
-    SDL_DestroyTexture(dirt);
-    SDL_DestroyTexture(grass);
-    SDL_DestroyTexture(water);
+
 }
 
-void Map::LoadMap(int arr[1][1]){
-    for (int i = 0; i < 1; ++i){
-        for (int j = 0; j  < 1; ++j){
-            map[i][j] = arr[i][j];    // truyen gia tri vao map
-        }
+// void Map::LoadMap(string path, int sizeX, int sizeY){
+//     char c; // lưu giá trị của tile
+//     fstream mapFile;
+//     mapFile.open(path, fstream::in);
+
+//     int srcX, srcY;
+
+//     for (int y = 0; y < sizeY; ++y){
+//         for (int x = 0; x < sizeX; ++x){
+//             mapFile.get(c); // lấy giá trị của tile
+//             srcY = atoi(&c) * 21; // chuyển giá trị của tile thành số nguyên và nhân với 32
+//             mapFile.get(c);
+//             srcX = atoi(&c) * 21;
+//             Game::AddTile(srcX, srcY, x * 21, y * 21); // chuyển giá trị của tile thành số nguyên và thêm vào map
+//             mapFile.ignore();// bỏ qua kí tự xuống dòng
+//         }
+//     }
+// }
+
+void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
+    ifstream mapFile(path);
+    if (!mapFile.is_open()) {
+        std::cerr << "Failed to open map file: " << path << std::endl;
+        return;
     }
-}
 
-void Map::DrawMap(){
-    int type = 0;
+    string line;
+    vector<vector<int>> mapData;
 
-    for (int i = 0; i < 1; ++i){
-        for (int j = 0; j  < 1; ++j){
-            
-            type = map[i][j];
+    // Đọc dữ liệu từ file và lưu vào vector 2D
+    while (std::getline(mapFile, line)) {
+        istringstream ss(line);
+        vector<int> row;
+        string value;
 
-            dest.x = j * WIDTH;
-            dest.y = i * (HEIGHT / 2);
+        while (std::getline(ss, value, ',')) {
+            row.push_back(stoi(value)); // Chuyển giá trị từ chuỗi sang số nguyên
+        }
 
-            if (type == 0) SDL_RenderCopy(Game::renderer, dirt, &src, &dest);
-            else if (type == 1) SDL_RenderCopy(Game::renderer, grass, &src, &dest);
-            else if (type == 2) SDL_RenderCopy(Game::renderer, water, &src, &dest);
+        mapData.push_back(row);
+    }
 
+    mapFile.close();
+
+    // Duyệt qua dữ liệu bản đồ và thêm các tile
+    for (int y = 0; y < sizeY; ++y) {
+        for (int x = 0; x < sizeX; ++x) {
+            int tileCode = mapData[y][x];
+            int srcX = tileCode % gridWidth; // Cột trong sprite sheet
+            int srcY = tileCode / gridWidth; // Hàng trong sprite sheet
+
+            Game::AddTile(srcX * 32, srcY * 32, x * 32, y * 32); // Thêm tile vào bản đồ
         }
     }
 }

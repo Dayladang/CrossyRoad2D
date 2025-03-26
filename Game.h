@@ -27,6 +27,7 @@ public:
     void render();
     void quit();
 
+    static void AddTile(int srcX, int srcY, int xpos, int ypos);
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
     static vector<ColliderComponent*> colliders;

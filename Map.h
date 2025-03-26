@@ -3,6 +3,8 @@
 
 #include "Game.h"
 
+using namespace std;
+
 class Map{
 
 public:
@@ -10,8 +12,7 @@ public:
     Map();
     ~Map();
 
-    void LoadMap(int arr[2][1]);
-    void DrawMap();
+    static void LoadMap(string path, int sizeX, int sizeY, int gridWidth);
 
 private:
 
@@ -21,7 +22,6 @@ private:
     SDL_Texture* grass;
     SDL_Texture* water;
 
-    int map[1][1];
 };
 
 #endif

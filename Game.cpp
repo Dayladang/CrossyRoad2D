@@ -6,7 +6,6 @@
 
 using namespace std;
 
-Map* map1; //5
 Manager manager;//6
 
 SDL_Renderer* Game::renderer = NULL; //5
@@ -18,8 +17,10 @@ Entity& player = manager.addEntity();//6
 Entity& car = manager.addEntity();//6
 Entity& car2 = manager.addEntity();
 
-Entity& wall1 = manager.addEntity(); //10
-Entity& wall2 = manager.addEntity(); //12
+// Entity& wall1 = manager.addEntity(); //10
+// Entity& wall2 = manager.addEntity(); //12
+
+const char* mapfile = "C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\color.png"; // 14
 
 Game::Game(){}
 
@@ -56,12 +57,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     isRunning = true;
 
-    map1 = new Map();//5
-
-    wall1.addComponent<TileComponent>(200, 200, 32, 32 , 0);
-    wall1.addComponent<ColliderComponent>("wall1");
-    wall2.addComponent<TileComponent>(250, 250, 32, 32, 1);
-    wall2.addComponent<ColliderComponent>("wall2");
+    Map::LoadMap("C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\map.map", 32, 32, 8); //14 
 
     player.addComponent<TransformComponent>(WIDTH / 2, 580, 24, 24, 1, 0, 0);
     player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
@@ -114,9 +110,8 @@ void Game::update(){
     }
 }
 
-void Game::render(){
-    SDL_RenderClear(renderer);
-    map1->DrawMap(); // ve map trc roi moi den nhan vat//5
+void Game::render(){   
+    SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5
     manager.draw();
     SDL_RenderPresent(renderer);
 }
@@ -126,4 +121,9 @@ void Game::quit(){
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
     cout << "quit game";
+}
+
+void Game::AddTile(int srcX, int srcY, int xpos, int ypos){
+    Entity& Map = manager.addEntity(); //13
+    Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, mapfile);
 }
