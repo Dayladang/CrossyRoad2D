@@ -3,6 +3,7 @@
 #include "ECS/Components.h"
 #include "Vector2D.cpp"//8
 #include "Collision.cpp"//10
+#include "ECS/ECS.cpp" // 16
 
 using namespace std;
 
@@ -19,6 +20,12 @@ Entity& car2 = manager.addEntity();
 
 // Entity& wall1 = manager.addEntity(); //10
 // Entity& wall2 = manager.addEntity(); //12
+
+enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
+    groupMap,
+    groupPlayer,
+    groupColliders
+};
 
 const char* mapfile = "C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\color.png"; // 14
 
@@ -63,14 +70,17 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
+    player.addGroup(groupPlayer);
 
     car.addComponent<TransformComponent>(WIDTH + 100, 370, 75, 44, 1, -6, 0);
     car.addComponent<SpriteComponent>("imgs/taxi.png");
     car.addComponent<ColliderComponent>("car");
+    car.addGroup(groupMap);
 
     car2.addComponent<TransformComponent>(-100, 430, 84, 43, 1, 3, 0);  
     car2.addComponent<SpriteComponent>("imgs/truck.png");
     car2.addComponent<ColliderComponent>("truck");
+    car2.addGroup(groupMap);
 
 }
 
@@ -110,9 +120,15 @@ void Game::update(){
     }
 }
 
+vector<Entity*>& tiles = manager.getGroup(groupMap); // tiles là một vector các entity trong nhóm groupMap
+vector<Entity*>& players = manager.getGroup(groupPlayer);
+
 void Game::render(){   
     SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5
-    manager.draw();
+
+    for (auto& t : tiles) t->draw();
+    for (auto& p : players) p->draw();
+
     SDL_RenderPresent(renderer);
 }
 
@@ -126,4 +142,5 @@ void Game::quit(){
 void Game::AddTile(int srcX, int srcY, int xpos, int ypos){
     Entity& Map = manager.addEntity(); //13
     Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, mapfile);
+    Map.addGroup(groupMap);
 }

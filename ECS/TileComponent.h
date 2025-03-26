@@ -29,12 +29,11 @@ public :
 
         destRect.x = xpos;
         destRect.y = ypos;
-        destRect.w = 32; //kích thước của tile sau khi scale
-        destRect.h = 32;
+        destRect.w = destRect.h = 32; //kích thước của tile sau khi scale
+        
     }
 
     void draw() override {
-        //cout << "draw Tile" << endl;
         SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
     }
 

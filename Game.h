@@ -8,8 +8,8 @@
 
 using namespace std;
 
-const int WIDTH = 800;
-const int HEIGHT = 640;
+const int WIDTH = 1024;
+const int HEIGHT = 1024;
 const char* WINDOW_TITLE = " Game Time !";
 
 class ColliderComponent;
@@ -33,7 +33,6 @@ public:
     static vector<ColliderComponent*> colliders;
 
 private:
-    int cnt = WIDTH;
     bool isRunning;
     SDL_Window* window;   
 };

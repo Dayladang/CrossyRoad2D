@@ -45,12 +45,12 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
     vector<vector<int>> mapData;
 
     // Đọc dữ liệu từ file và lưu vào vector 2D
-    while (std::getline(mapFile, line)) {
-        istringstream ss(line);
+    while (getline(mapFile, line)) {
+        istringstream ss(line); // 
         vector<int> row;
         string value;
 
-        while (std::getline(ss, value, ',')) {
+        while (getline(ss, value, ',')) {
             row.push_back(stoi(value)); // Chuyển giá trị từ chuỗi sang số nguyên
         }
 
@@ -67,6 +67,7 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
             int srcY = tileCode / gridWidth; // Hàng trong sprite sheet
 
             Game::AddTile(srcX * 32, srcY * 32, x * 32, y * 32); // Thêm tile vào bản đồ
+            
         }
     }
 }

@@ -93,7 +93,6 @@ public:
     }
 
     void draw () override {
-        cout << "draw Sprite" << endl;
         SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
     }
 
