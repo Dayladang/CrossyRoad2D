@@ -13,13 +13,21 @@ SDL_Renderer* Game::renderer = NULL; //5
 SDL_Event Game::event;//9
 
 vector<ColliderComponent*> Game::colliders; // 12
+
+bool Game::isRunning = false;// 17
  
 Entity& player = manager.addEntity();//6
 Entity& car = manager.addEntity();//6
 Entity& car2 = manager.addEntity();
+Entity& car3 = manager.addEntity();
+Entity& car4 = manager.addEntity();
 
 // Entity& wall1 = manager.addEntity(); //10
 // Entity& wall2 = manager.addEntity(); //12
+
+SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
+
+const char* mapfile = "C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\color.png"; // 14
 
 enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
     groupMap,
@@ -27,7 +35,8 @@ enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Gr
     groupColliders
 };
 
-const char* mapfile = "C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\color.png"; // 14
+vector<Entity*>& tiles = manager.getGroup(groupMap); // tiles là một vector các entity trong nhóm groupMap
+vector<Entity*>& players = manager.getGroup(groupPlayer);
 
 Game::Game(){}
 
@@ -66,40 +75,51 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     Map::LoadMap("C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\map.map", 32, 32, 8); //14 
 
-    player.addComponent<TransformComponent>(WIDTH / 2, 580, 24, 24, 1, 0, 0);
+    player.addComponent<TransformComponent>(512, 990, 24, 20, 1, 0, 0);
     player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayer);
 
-    car.addComponent<TransformComponent>(WIDTH + 100, 370, 75, 44, 1, -6, 0);
+    car.addComponent<TransformComponent>(1024 + 100, 760, 75, 44, 1, -6, 0);
     car.addComponent<SpriteComponent>("imgs/taxi.png");
     car.addComponent<ColliderComponent>("car");
     car.addGroup(groupMap);
 
-    car2.addComponent<TransformComponent>(-100, 430, 84, 43, 1, 3, 0);  
+    car2.addComponent<TransformComponent>(-100, 795, 84, 43, 1, 3, 0);  
     car2.addComponent<SpriteComponent>("imgs/truck.png");
     car2.addComponent<ColliderComponent>("truck");
     car2.addGroup(groupMap);
+
+    car3.addComponent<TransformComponent>(1024 + 100, 840, 88, 47, 1, -4, 0);  
+    car3.addComponent<SpriteComponent>("imgs/redtruck.png");
+    car3.addComponent<ColliderComponent>("redtruck");
+    car3.addGroup(groupMap);
+
+    car4.addComponent<TransformComponent>(-100, 880, 80, 44, 1, 6, 0);  
+    car4.addComponent<SpriteComponent>("imgs/ambulance.png");
+    car4.addComponent<ColliderComponent>("ambulance");
+    car4.addGroup(groupMap);
 
 }
 
 void Game::handleEvents(){
    
     SDL_PollEvent(&event);
-
-        if(event.type == SDL_QUIT) isRunning = false;
-
-        else if ( event.type == SDL_KEYDOWN ){
-            const Uint8* check = SDL_GetKeyboardState(NULL);
-            if(check[SDL_SCANCODE_ESCAPE]) isRunning = false;
-        }
     
 }
 
 void Game::update(){
     manager.refresh();//8
     manager.update();//6 
+
+    screen.x = player.getComponent<TransformComponent>().position.x - WIDTH / 2; // làm cho screen di chuyển theo player
+    screen.y = player.getComponent<TransformComponent>().position.y - HEIGHT / 2; 
+
+    if (screen.x < 0) screen.x = 0; // giữ cho screen không di chuyển ra ngoài map
+    if (screen.y < 0) screen.y = 0;
+    if (screen.x > screen.w) screen.x = screen.w;
+    if (screen.y > screen.h) screen.y = screen.h;
 
     if(Collision::AABB(player.getComponent<ColliderComponent>().collider, car.getComponent<ColliderComponent>().collider)){
         player.getComponent<TransformComponent>().velocity.Zero();       
@@ -115,13 +135,13 @@ void Game::update(){
         isRunning = false;
     }
 
-    for (ColliderComponent* c : colliders){
-        Collision::AABB(player.getComponent<ColliderComponent>(), *c);
-    }
+    cout << "chicken position: (" 
+    << player.getComponent<TransformComponent>().position.x << ", " 
+    << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+    // for (ColliderComponent* c : colliders){
+    //     Collision::AABB(player.getComponent<ColliderComponent>(), *c);
+    // }
 }
-
-vector<Entity*>& tiles = manager.getGroup(groupMap); // tiles là một vector các entity trong nhóm groupMap
-vector<Entity*>& players = manager.getGroup(groupPlayer);
 
 void Game::render(){   
     SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5

@@ -73,21 +73,21 @@ public:
     void update() override {
 
         if (animated){
-            srcRect.x = srcRect.w * static_cast<int>((SDL_GetTicks() / speed) % frames);
+            srcRect.x = srcRect.w * static_cast<int>((SDL_GetTicks() / speed) % frames); // chuyển đổi giữa các frame
         }
 
         srcRect.y = animIndex * transform->height; // đặt vị trí cuat y cho animation
 
-        destRect.x = transform->position.x;
-        destRect.y = transform->position.y;
+        destRect.x = transform->position.x - Game::screen.x; // di chuyển tho screen với vân tốc của player 
+        destRect.y = transform->position.y - Game::screen.y;
 
         destRect.w = transform->width * transform->scale;
         destRect.h = transform->height * transform->scale;
 
-        if (destRect.x < 0 - 100) {
-            transform->position.x = WIDTH + 100; // Đặt lại vị trí x để xuất hiện từ phía bên trái
+        if (transform->position.x < 0 - 100) {
+            transform->position.x = 1024 + 100; // Đặt lại vị trí x để xuất hiện lại từ phía bên phải
         }
-        else if (destRect.x > WIDTH + 100){
+        else if (transform->position.x > 1024 + 100){
             transform->position.x = 0 - 100;
         }
     }

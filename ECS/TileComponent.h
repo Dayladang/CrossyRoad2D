@@ -9,7 +9,8 @@ class TileComponent : public Component {
 public :
 
     SDL_Texture* texture;
-    SDL_Rect srcRect, destRect;
+    SDL_Rect srcRect, destRect; // 
+    Vector2D position; // vị trí của tile trên map
     
     TileComponent() = default;
 
@@ -23,6 +24,9 @@ public :
             cerr << "loi khoi tao Texture" << SDL_GetError() << endl;
         }
 
+        position.x = xpos; // 
+        position.y = ypos;
+
         srcRect.x = srcX;
         srcRect.y = srcY;
         srcRect.w = srcRect.h = 32; //kích thước của tile gốc 
@@ -31,6 +35,11 @@ public :
         destRect.y = ypos;
         destRect.w = destRect.h = 32; //kích thước của tile sau khi scale
         
+    }
+
+    void update() override {
+        destRect.x = position.x - Game::screen.x; // di chuyển theo sreen
+        destRect.y = position.y - Game::screen.y;
     }
 
     void draw() override {

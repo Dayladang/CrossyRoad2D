@@ -8,8 +8,8 @@
 
 using namespace std;
 
-const int WIDTH = 1024;
-const int HEIGHT = 1024;
+const int WIDTH = 512;
+const int HEIGHT = 512;
 const char* WINDOW_TITLE = " Game Time !";
 
 class ColliderComponent;
@@ -31,9 +31,10 @@ public:
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
     static vector<ColliderComponent*> colliders;
+    static bool isRunning;
+    static SDL_Rect screen;
 
-private:
-    bool isRunning;
+private:   
     SDL_Window* window;   
 };
 #endif// GRAPHIC_H

@@ -23,7 +23,8 @@ class TransformComponent : public Component {
         }
 
         TransformComponent(int s){
-            position.Zero();
+            position.x = 256; //giữa màn hình
+            position.y = 256;
             scale = s;
         }
 

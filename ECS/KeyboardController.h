@@ -18,7 +18,9 @@ public :
 
     void update() override {
 
-            if ( Game::event.type == SDL_KEYDOWN ){
+            if ( Game::event.type == SDL_QUIT) Game::isRunning = false;
+
+            else if ( Game::event.type == SDL_KEYDOWN ){
                 const Uint8* check = SDL_GetKeyboardState(NULL);
 
                 if (check[SDL_SCANCODE_W]) {
@@ -38,6 +40,7 @@ public :
                     sprite->Play("Leftwalk");
                 }
                 if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 3;
+                if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false;
             }
 
             else if ( Game::event.type == SDL_KEYUP ){
