@@ -7,12 +7,11 @@
 
 using namespace std;
 
+Map* gameMap;
 Manager manager;//6
 
 SDL_Renderer* Game::renderer = NULL; //5
 SDL_Event Game::event;//9
-
-vector<ColliderComponent*> Game::colliders; // 12
 
 bool Game::isRunning = false;// 17
  
@@ -21,22 +20,16 @@ Entity& car = manager.addEntity();//6
 Entity& car2 = manager.addEntity();
 Entity& car3 = manager.addEntity();
 Entity& car4 = manager.addEntity();
+Entity& train = manager.addEntity();
 
 // Entity& wall1 = manager.addEntity(); //10
 // Entity& wall2 = manager.addEntity(); //12
 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
-const char* mapfile = "C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\color.png"; // 14
-
-enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
-    groupMap,
-    groupPlayer,
-    groupColliders
-};
-
-vector<Entity*>& tiles = manager.getGroup(groupMap); // tiles là một vector các entity trong nhóm groupMap
-vector<Entity*>& players = manager.getGroup(groupPlayer);
+vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
+vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
+vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
 
 Game::Game(){}
 
@@ -73,7 +66,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     isRunning = true;
 
-    Map::LoadMap("C:\\Users\\ADMIN\\OneDrive\\Desktop\\git_exercise\\imgs\\map.map", 32, 32, 8); //14 
+    gameMap = new Map("imgs/color.png", 1, 32);
+    gameMap->LoadMap("imgs/map.map", 64, 32, 8); //14 
 
     player.addComponent<TransformComponent>(512, 990, 24, 20, 1, 0, 0);
     player.addComponent<SpriteComponent>("imgs/chick_total.png", true);
@@ -101,6 +95,11 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     car4.addComponent<ColliderComponent>("ambulance");
     car4.addGroup(groupMap);
 
+    train.addComponent<TransformComponent>(-100, 200, 92, 41, 1, 8, 0);  
+    train.addComponent<SpriteComponent>("imgs/train.png");
+    train.addComponent<ColliderComponent>("train");
+    train.addGroup(groupMap);
+
 }
 
 void Game::handleEvents(){
@@ -110,8 +109,20 @@ void Game::handleEvents(){
 }
 
 void Game::update(){
+
+    SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider; // lấy collider của player
+    Vector2D playerPos = player.getComponent<TransformComponent>().position; // lấy vị trí của player để khi va chạm với vật cản thì trở về trạng thái chưa va chạm 
+
     manager.refresh();//8
     manager.update();//6 
+
+    for (auto& c : colliders){
+        SDL_Rect cCol = c->getComponent<ColliderComponent>().collider; // lấy collider của vật cản 
+
+        if (Collision::AABB(cCol, playerCol)){
+            player.getComponent<TransformComponent>().position = playerPos; // trở lại vị trí trc khi va chạm
+        }
+    }
 
     screen.x = player.getComponent<TransformComponent>().position.x - WIDTH / 2; // làm cho screen di chuyển theo player
     screen.y = player.getComponent<TransformComponent>().position.y - HEIGHT / 2; 
@@ -135,9 +146,10 @@ void Game::update(){
         isRunning = false;
     }
 
-    cout << "chicken position: (" 
-    << player.getComponent<TransformComponent>().position.x << ", " 
-    << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+    // cout << "chicken position: (" 
+    // << player.getComponent<TransformComponent>().position.x << ", " 
+    // << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+
     // for (ColliderComponent* c : colliders){
     //     Collision::AABB(player.getComponent<ColliderComponent>(), *c);
     // }
@@ -147,6 +159,7 @@ void Game::render(){
     SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5
 
     for (auto& t : tiles) t->draw();
+    for (auto& c : colliders) c->draw();
     for (auto& p : players) p->draw();
 
     SDL_RenderPresent(renderer);
@@ -157,10 +170,4 @@ void Game::quit(){
     SDL_DestroyRenderer(renderer);
     SDL_Quit();
     cout << "quit game";
-}
-
-void Game::AddTile(int srcX, int srcY, int xpos, int ypos){
-    Entity& Map = manager.addEntity(); //13
-    Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, mapfile);
-    Map.addGroup(groupMap);
 }

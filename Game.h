@@ -27,12 +27,15 @@ public:
     void render();
     void quit();
 
-    static void AddTile(int srcX, int srcY, int xpos, int ypos);
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
-    static vector<ColliderComponent*> colliders;
     static bool isRunning;
     static SDL_Rect screen;
+    enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
+        groupMap,
+        groupPlayer,
+        groupColliders
+    };
 
 private:   
     SDL_Window* window;   

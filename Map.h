@@ -9,18 +9,16 @@ class Map{
 
 public:
 
-    Map();
+    Map(const char* maplink, int mapscale, int tilesize);
     ~Map();
 
-    static void LoadMap(string path, int sizeX, int sizeY, int gridWidth);
+    void LoadMap(string path, int sizeX, int sizeY, int gridWidth);
+    void AddTile(int srcX, int srcY, int xpos, int ypos);
 
 private:
-
-    SDL_Rect src, dest;
-
-    SDL_Texture* dirt;
-    SDL_Texture* grass;
-    SDL_Texture* water;
+    const char* mapLink;
+    int mapScale;
+    int tileSize;
 
 };
 

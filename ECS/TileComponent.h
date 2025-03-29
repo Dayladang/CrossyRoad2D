@@ -18,7 +18,7 @@ public :
         SDL_DestroyTexture(texture);
     }
 
-    TileComponent(int srcX, int srcY, int xpos, int ypos, const char* path){
+    TileComponent(int srcX, int srcY, int xpos, int ypos, int tsize, int tscale, const char* path){
         texture = IMG_LoadTexture(Game::renderer, path);
         if (!texture){
             cerr << "loi khoi tao Texture" << SDL_GetError() << endl;
@@ -29,11 +29,11 @@ public :
 
         srcRect.x = srcX;
         srcRect.y = srcY;
-        srcRect.w = srcRect.h = 32; //kích thước của tile gốc 
+        srcRect.w = srcRect.h = tsize; //kích thước của tile gốc 
 
         destRect.x = xpos;
         destRect.y = ypos;
-        destRect.w = destRect.h = 32; //kích thước của tile sau khi scale
+        destRect.w = destRect.h = tsize * tscale; //kích thước của tile sau khi scale
         
     }
 
