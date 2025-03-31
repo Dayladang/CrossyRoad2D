@@ -1,11 +1,12 @@
 #ifndef SPRITECOMPONENT_H
 #define SPRITECOMPONENT_H
 
-#include "Components.h"
 #include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL.h"
-#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\Game.h"
+#include "Components.h"
 #include "Animation.h"
-#include  <bits/stdc++.h>
+#include <string>
+#include <map>
+#include "../AssetManager.h"
 
 using namespace std;
 
@@ -28,11 +29,11 @@ public:
 
     SpriteComponent() = default;
 
-    SpriteComponent(const char* link){
+    SpriteComponent(string link){
         setTex(link);
     }
 
-    SpriteComponent(const char* link, bool isAnimated){
+    SpriteComponent(string link, bool isAnimated){
 
         animated = isAnimated;
 
@@ -54,11 +55,10 @@ public:
     }
 
     ~SpriteComponent(){
-        SDL_DestroyTexture(texture);
     }
 
-    void setTex(const char* link){
-        texture = IMG_LoadTexture(Game::renderer, link);
+    void setTex(string link){
+        texture = Game::assets->GetTexture(link);
     }
 
     void init () override {

@@ -3,8 +3,9 @@
 
 #include <iostream>
 #include <vector>
-#include "C:\Users\ADMIN\OneDrive\Documents\coding stuff\DUT_CAN_TRI\src\include\SDL2\SDL.h"
-#include "C:\Users\ADMIN\OneDrive\Documents\coding stuff\DUT_CAN_TRI\src\include\SDL2\SDL_image.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
+#include "AssetManager.h" 
 
 using namespace std;
 
@@ -31,6 +32,8 @@ public:
     static SDL_Event event;
     static bool isRunning;
     static SDL_Rect screen;
+    static AssetManager* assets;
+
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,
         groupPlayer,

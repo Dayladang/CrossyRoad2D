@@ -1,7 +1,7 @@
 #ifndef MAP_H //5
 #define MAP_H
 
-#include "Game.h"
+#include <string>
 
 using namespace std;
 
@@ -9,14 +9,14 @@ class Map{
 
 public:
 
-    Map(const char* maplink, int mapscale, int tilesize);
+    Map(string tID, int mapscale, int tilesize);
     ~Map();
 
     void LoadMap(string path, int sizeX, int sizeY, int gridWidth);
     void AddTile(int srcX, int srcY, int xpos, int ypos);
 
 private:
-    const char* mapLink;
+    string texID;
     int mapScale;
     int tileSize;
 

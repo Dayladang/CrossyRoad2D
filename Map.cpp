@@ -11,8 +11,8 @@ using namespace std;
 
 extern Manager manager; // sử dụng tiếp manager đã được khai báo ở Game.cpp
 
-Map::Map(const char* maplink, int mapscale, int tilesize){
-    mapLink = maplink;
+Map::Map(string tID, int mapscale, int tilesize){
+    texID = tID;
     mapScale = mapscale;
     tileSize = tilesize;
 }
@@ -21,29 +21,10 @@ Map::~Map(){
 
 }
 
-// void Map::LoadMap(string path, int sizeX, int sizeY){
-//     char c; // lưu giá trị của tile
-//     fstream mapFile;
-//     mapFile.open(path, fstream::in);
-
-//     int srcX, srcY;
-
-//     for (int y = 0; y < sizeY; ++y){
-//         for (int x = 0; x < sizeX; ++x){
-//             mapFile.get(c); // lấy giá trị của tile
-//             srcY = atoi(&c) * 21; // chuyển giá trị của tile thành số nguyên và nhân với 32
-//             mapFile.get(c);
-//             srcX = atoi(&c) * 21;
-//             Game::AddTile(srcX, srcY, x * 21, y * 21); // chuyển giá trị của tile thành số nguyên và thêm vào map
-//             mapFile.ignore();// bỏ qua kí tự xuống dòng
-//         }
-//     }
-// }
-
 void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
     ifstream mapFile(path);
     if (!mapFile.is_open()) {
-        std::cerr << "Failed to open map file: " << path << std::endl;
+        cerr << "Failed to open map file: " << path << std::endl;
         return;
     }
 
@@ -86,9 +67,6 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
                 block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale), tileSize * mapScale);
                 block.addGroup(Game::groupColliders);
 
-                // cout << "Collider entity added at position: (" 
-                // << x * (tileSize * mapScale)<< ", " 
-                // << (y - sizeY) * (tileSize * mapScale) << ")" << std::endl;
             }
         }
     }
@@ -96,6 +74,6 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
 
 void Map::AddTile(int srcX, int srcY, int xpos, int ypos){ //18
     Entity& Map = manager.addEntity(); //13
-    Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, tileSize, mapScale, mapLink);
+    Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, tileSize, mapScale, texID);
     Map.addGroup(Game::groupMap);
 }

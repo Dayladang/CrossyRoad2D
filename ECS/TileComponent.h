@@ -1,8 +1,10 @@
 #ifndef TILECOMPONENT_H
 #define TILECOMPONENT_H
 
-#include "ECS.h"
 #include <SDL2/SDL.h>
+#include "ECS.h"
+#include "../Vector2D.h"
+#include "../Game.h"
 
 class TileComponent : public Component {
 
@@ -18,8 +20,8 @@ public :
         SDL_DestroyTexture(texture);
     }
 
-    TileComponent(int srcX, int srcY, int xpos, int ypos, int tsize, int tscale, const char* path){
-        texture = IMG_LoadTexture(Game::renderer, path);
+    TileComponent(int srcX, int srcY, int xpos, int ypos, int tsize, int tscale, std::string id){
+        texture = Game::assets->GetTexture(id);
         if (!texture){
             cerr << "loi khoi tao Texture" << SDL_GetError() << endl;
         }
