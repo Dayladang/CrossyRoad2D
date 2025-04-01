@@ -68,7 +68,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     isRunning = true;
 
-    //
+    //thêm nhận vật
     assets->AddTexture("terrain", "imgs/color.png");
     assets->AddTexture("player", "imgs/chick_total.png");
     assets->AddTexture("car", "imgs/taxi.png");
