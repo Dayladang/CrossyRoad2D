@@ -29,11 +29,11 @@ public:
 
     SpriteComponent() = default;
 
-    SpriteComponent(string link){
-        setTex(link);
+    SpriteComponent(string id){
+        setTex(id);
     }
 
-    SpriteComponent(string link, bool isAnimated){
+    SpriteComponent(string id, bool isAnimated){
 
         animated = isAnimated;
 
@@ -51,14 +51,14 @@ public:
 
         Play("Idle");
 
-        setTex(link);
+        setTex(id);
     }
 
     ~SpriteComponent(){
     }
 
-    void setTex(string link){
-        texture = Game::assets->GetTexture(link);
+    void setTex(string id){
+        texture = Game::assets->GetTexture(id);
     }
 
     void init () override {
