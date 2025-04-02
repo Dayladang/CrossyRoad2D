@@ -32,6 +32,7 @@ Entity& train = manager.addEntity();
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
 vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
+vector<Entity*>& vehicles = manager.getGroup(Game::groupVehicles);//21
 
 Game::Game(){}
 
@@ -69,7 +70,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     isRunning = true;
 
     //thêm nhận vật
-    assets->AddTexture("terrain", "imgs/color.png");
+    assets->AddTexture("terrain", "imgs/color1.png");
     assets->AddTexture("player", "imgs/chick_total.png");
     assets->AddTexture("car", "imgs/taxi.png");
     assets->AddTexture("truck", "imgs/truck.png");
@@ -80,41 +81,41 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap("imgs/map.map", 64, 32, 8); //14 
+    gameMap->LoadMap("imgs/map1.map", 64, 32, 8); //14 
 
     
     //vẽ nhân vật
-    player.addComponent<TransformComponent>(512, 990, 24, 20, 1, 0, 0);
+    player.addComponent<TransformComponent>(512, 970, 24, 20, 1, 0, 0);
     player.addComponent<SpriteComponent>("player", true);
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayer);
 
-    car.addComponent<TransformComponent>(1024 + 100, 760, 75, 44, 1, -3, 0);
+    car.addComponent<TransformComponent>(1024 + 100, 920, 75, 44, 1, -3, 0);
     car.addComponent<SpriteComponent>("car");
     car.addComponent<ColliderComponent>("car");
-    car.addGroup(groupMap);
+    car.addGroup(groupVehicles);
     //cars.push_back(&car);
 
     car2.addComponent<TransformComponent>(-100, 795, 84, 43, 1, 3, 0);  
     car2.addComponent<SpriteComponent>("truck");
     car2.addComponent<ColliderComponent>("truck");
-    car2.addGroup(groupMap);
+    car2.addGroup(groupVehicles);
 
-    car3.addComponent<TransformComponent>(1024 + 100, 840, 88, 47, 1, -4, 0);  
+    car3.addComponent<TransformComponent>(1024 + 100, 725, 88, 47, 1, -4, 0);  
     car3.addComponent<SpriteComponent>("redtruck");
     car3.addComponent<ColliderComponent>("redtruck");
-    car3.addGroup(groupMap);
+    car3.addGroup(groupVehicles);
 
-    car4.addComponent<TransformComponent>(-100, 880, 80, 44, 1, 6, 0);  
+    car4.addComponent<TransformComponent>(-100, 674, 80, 44, 1, 6, 0);  
     car4.addComponent<SpriteComponent>("ambulance");
     car4.addComponent<ColliderComponent>("ambulance");
-    car4.addGroup(groupMap);
+    car4.addGroup(groupVehicles);
 
-    train.addComponent<TransformComponent>(-100, 150, 92, 41, 1, 8, 0);  
+    train.addComponent<TransformComponent>(-100, 410, 92, 41, 1, 8, 0);  
     train.addComponent<SpriteComponent>("train");
     train.addComponent<ColliderComponent>("train");
-    train.addGroup(groupMap);
+    train.addGroup(groupVehicles);
 
 }
 
@@ -166,23 +167,17 @@ void Game::update(){
     // }
 
     // bắt sự kiện va chạm
-        if(Collision::AABB(player.getComponent<ColliderComponent>().collider, car.getComponent<ColliderComponent>().collider)){
-            player.getComponent<TransformComponent>().velocity.Zero();       
+    for(auto& v : vehicles){
+        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
+            player.getComponent<TransformComponent>().velocity.Zero();
             cout << "đâm rồi thằng ngu" << endl;
-            SDL_Delay(5000);
-            isRunning = false;
+            player.getComponent<TransformComponent>().position = {512, 970};
         }
-
-    if(Collision::AABB(player.getComponent<ColliderComponent>().collider, car2.getComponent<ColliderComponent>().collider)){
-        player.getComponent<TransformComponent>().velocity.Zero();
-        cout << "đâm rồi thằng ngu" << endl;
-        SDL_Delay(5000);
-        isRunning = false;
     }
 
-    // cout << "chicken position: (" 
-    // << player.getComponent<TransformComponent>().position.x << ", " 
-    // << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+    cout << "chicken position: (" 
+    << player.getComponent<TransformComponent>().position.x << ", " 
+    << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
 
 }
 
@@ -192,6 +187,7 @@ void Game::render(){
     for (auto& t : tiles) t->draw();
     //for (auto& car : cars) car->draw();
     //for (auto& c : colliders) c->draw();
+    for (auto& v : vehicles) v->draw();
     for (auto& p : players) p->draw();
 
     SDL_RenderPresent(renderer);

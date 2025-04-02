@@ -37,7 +37,8 @@ public:
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,
         groupPlayer,
-        groupColliders
+        groupColliders,
+        groupVehicles
     };
 
 private:   

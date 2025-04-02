@@ -3,25 +3,6 @@
 //#include "GameObject.cpp"//4
 
 using namespace std;
-/* //thuật toán quicksort
-void qsort(int a[],int l, int r){
-    if (l >= r) return; // end sort
-    int x = a[(l + r) / 2]; //pivot
-    int i = l, j = r;
-    while(i <= j)
-    {
-        while (a[i] < x) ++i;
-        while (a[j] > x) --j;
-        if (i <= j){ // find the numbers in the wrong side and swap them 
-            swap(a[i],a[j]); 
-            ++i;
-            --j;
-        }
-    }
-    qsort(a,l,j);
-    qsort(a,i,r);
-}
-*/
 
 Game* game = NULL;
 
