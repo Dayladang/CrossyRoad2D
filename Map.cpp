@@ -22,7 +22,7 @@ Map::~Map(){
 }
 
 void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
-    ifstream mapFile(path);
+    fstream mapFile(path, ios::in);
     if (!mapFile.is_open()) {
         cerr << "Failed to open map file: " << path << std::endl;
         return;
@@ -67,6 +67,11 @@ void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
                 block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale), tileSize * mapScale);
                 block.addGroup(Game::groupColliders);
 
+            }
+            else if (tileCode == 2){
+                Entity& block = manager.addEntity();
+                block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale), tileSize * mapScale);
+                block.addGroup(Game::groupDangers);
             }
         }
     }

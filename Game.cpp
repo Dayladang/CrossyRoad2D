@@ -22,17 +22,13 @@ AssetManager* Game::assets = new AssetManager(&manager);
 bool Game::isRunning = false;// 17
  
 Entity& player = manager.addEntity();//6
-Entity& car = manager.addEntity();//6
-//vector<Entity*> cars;
-Entity& car2 = manager.addEntity();
-Entity& car3 = manager.addEntity();
-Entity& car4 = manager.addEntity();
+// vector<Entity*> cars;
 Entity& train = manager.addEntity();
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
 vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
-vector<Entity*>& vehicles = manager.getGroup(Game::groupVehicles);//21
+vector<Entity*>& dangers = manager.getGroup(Game::groupDangers);//21
 
 Game::Game(){}
 
@@ -72,16 +68,24 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //thêm nhận vật
     assets->AddTexture("terrain", "imgs/color1.png");
     assets->AddTexture("player", "imgs/chick_total.png");
-    assets->AddTexture("car", "imgs/taxi.png");
+    assets->AddTexture("taxi", "imgs/taxi.png");
     assets->AddTexture("truck", "imgs/truck.png");
     assets->AddTexture("redtruck", "imgs/redtruck.png");
     assets->AddTexture("ambulance", "imgs/ambulance.png");
+    assets->AddTexture("trainleft", "imgs/trainleft.png");
     assets->AddTexture("train", "imgs/train.png");
-
+    assets->AddTexture("musclecar", "imgs/musclecar.png");
+    assets->AddTexture("hatchback", "imgs/hatchback.png");
+    assets->AddTexture("luxurycar", "imgs/luxurycar.png");
+    assets->AddTexture("jeep", "imgs/jeep.png");
+    assets->AddTexture("microcar", "imgs/microcar.png");
+    assets->AddTexture("minivan", "imgs/minivan.png");
+    assets->AddTexture("SUV", "imgs/SUV.png");
+    assets->AddTexture("wagon", "imgs/wagon.png");
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap("imgs/map1.map", 64, 32, 8); //14 
+    gameMap->LoadMap("imgs/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -91,31 +95,27 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayer);
 
-    car.addComponent<TransformComponent>(1024 + 100, 920, 75, 44, 1, -3, 0);
-    car.addComponent<SpriteComponent>("car");
-    car.addComponent<ColliderComponent>("car");
-    car.addGroup(groupVehicles);
-    //cars.push_back(&car);
+    //lấy phương tiện từ file và thêm các tính năng
+    fstream file("imgs/vehicles.txt", ios::in);
+    if (file.is_open()){
+        string line;
+        while (getline(file, line)){
+            istringstream iss(line); // lấy string từ dòng 
+            int x, y, w, h, scale, veloX, veloY; 
+            string texID;
 
-    car2.addComponent<TransformComponent>(-100, 795, 84, 43, 1, 3, 0);  
-    car2.addComponent<SpriteComponent>("truck");
-    car2.addComponent<ColliderComponent>("truck");
-    car2.addGroup(groupVehicles);
+            iss >> x >> y >> w >> h >> scale >> veloX >> veloY;
+            iss >> texID;
 
-    car3.addComponent<TransformComponent>(1024 + 100, 725, 88, 47, 1, -4, 0);  
-    car3.addComponent<SpriteComponent>("redtruck");
-    car3.addComponent<ColliderComponent>("redtruck");
-    car3.addGroup(groupVehicles);
+            Entity& vehicle = manager.addEntity();
+            vehicle.addComponent<TransformComponent>(x, y, w, h, scale, veloX, veloY);
+            vehicle.addComponent<SpriteComponent>(texID);
+            vehicle.addComponent<ColliderComponent>(texID);
+            vehicle.addGroup(groupDangers);
+        }
 
-    car4.addComponent<TransformComponent>(-100, 674, 80, 44, 1, 6, 0);  
-    car4.addComponent<SpriteComponent>("ambulance");
-    car4.addComponent<ColliderComponent>("ambulance");
-    car4.addGroup(groupVehicles);
-
-    train.addComponent<TransformComponent>(-100, 410, 92, 41, 1, 8, 0);  
-    train.addComponent<SpriteComponent>("train");
-    train.addComponent<ColliderComponent>("train");
-    train.addGroup(groupVehicles);
+        file.close();
+    }
 
 }
 
@@ -167,8 +167,8 @@ void Game::update(){
     // }
 
     // bắt sự kiện va chạm
-    for(auto& v : vehicles){
-        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
+    for(auto& d : dangers){
+        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, d->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
             cout << "đâm rồi thằng ngu" << endl;
             player.getComponent<TransformComponent>().position = {512, 970};
@@ -187,7 +187,7 @@ void Game::render(){
     for (auto& t : tiles) t->draw();
     //for (auto& car : cars) car->draw();
     //for (auto& c : colliders) c->draw();
-    for (auto& v : vehicles) v->draw();
+    for (auto& d : dangers) d->draw();
     for (auto& p : players) p->draw();
 
     SDL_RenderPresent(renderer);
