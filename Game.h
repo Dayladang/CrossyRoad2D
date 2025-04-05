@@ -6,6 +6,7 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include "AssetManager.h" 
 
 using namespace std;
@@ -43,6 +44,7 @@ public:
     };
 
 private:   
-    SDL_Window* window;   
+    SDL_Window* window; 
+    Mix_Music* music;  
 };
 #endif// GRAPHIC_H

@@ -63,6 +63,19 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
         isRunning = false;
     } 
 
+    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        printf("SDL_mixer Error: %s\n", Mix_GetError());
+        isRunning = false;
+    }
+
+    music = Mix_LoadMUS("sound/themesound.mp3");
+    if (music == NULL) {
+        printf("khong load dc nhac %s\n", Mix_GetError());
+        isRunning = false;
+    } else {
+        Mix_PlayMusic(music, -1); // Phát nhạc lặp lại vô hạn
+    }
+
     isRunning = true;
 
     //thêm nhận vật
@@ -179,6 +192,8 @@ void Game::update(){
     << player.getComponent<TransformComponent>().position.x << ", " 
     << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
 
+
+
 }
 
 void Game::render(){   
@@ -194,8 +209,12 @@ void Game::render(){
 }
 
 void Game::quit(){
-    SDL_DestroyWindow(window);
+    Mix_HaltMusic();
+    Mix_FreeMusic(music);
     SDL_DestroyRenderer(renderer);
+    SDL_DestroyWindow(window);
+    Mix_CloseAudio();
+    IMG_Quit();
     SDL_Quit();
     cout << "quit game";
 }
