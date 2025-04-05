@@ -26,30 +26,36 @@ public :
                 if (check[SDL_SCANCODE_W]) {
                     transform->velocity.y = -1;
                     sprite->Play("Backwalk");
+                    Game::audio->playSound("chickensound", 0);
                 }
                 if (check[SDL_SCANCODE_S]) {
                     transform->velocity.y = 1;
                     sprite->Play("Frontwalk");
+                    Game::audio->playSound("chickensound", 0);
                 }
                 if (check[SDL_SCANCODE_D]) {
                     transform->velocity.x = 1;
                     sprite->Play("Rightwalk");
+                    Game::audio->playSound("chickensound", 0);
                 } 
                 if (check[SDL_SCANCODE_A]) {
                     transform->velocity.x = -1;
                     sprite->Play("Leftwalk");
+                    Game::audio->playSound("chickensound", 0);
                 }
                 if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 3;
                 if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false;
             }
 
             else if ( Game::event.type == SDL_KEYUP ){
+                
+                const Uint8* check = SDL_GetKeyboardState(NULL);
+                
                 transform->velocity.Zero();
                 sprite->Play("Idle");
-
-                const Uint8* check = SDL_GetKeyboardState(NULL);
+                Game::audio->stopSound("chickensound");                
  
-                if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 1;
+                if (!check[SDL_SCANCODE_RSHIFT]) transform->speed = 1;
             }
         }
 

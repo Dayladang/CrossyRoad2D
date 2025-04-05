@@ -6,8 +6,8 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include <SDL2/SDL_mixer.h>
 #include "AssetManager.h" 
+#include "AudioManager.h"
 
 using namespace std;
 
@@ -35,6 +35,7 @@ public:
     static bool isRunning;
     static SDL_Rect screen;
     static AssetManager* assets;
+    static AudioManager* audio;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,
@@ -45,6 +46,5 @@ public:
 
 private:   
     SDL_Window* window; 
-    Mix_Music* music;  
 };
 #endif// GRAPHIC_H

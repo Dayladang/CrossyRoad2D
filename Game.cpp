@@ -5,6 +5,7 @@
 #include "Collision.cpp"//10
 #include "ECS/ECS.cpp" // 16
 #include "AssetManager.cpp" //19
+#include "AudioManager.cpp" // 23
 
 using namespace std;
 
@@ -18,6 +19,7 @@ SDL_Event Game::event;//9
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
 AssetManager* Game::assets = new AssetManager(&manager);
+AudioManager* Game::audio = new AudioManager(); //23
 
 bool Game::isRunning = false;// 17
  
@@ -63,42 +65,37 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
         isRunning = false;
     } 
 
-    if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
-        printf("SDL_mixer Error: %s\n", Mix_GetError());
+    if (audio->initAudio() == false){
         isRunning = false;
-    }
-
-    music = Mix_LoadMUS("sound/themesound.mp3");
-    if (music == NULL) {
-        printf("khong load dc nhac %s\n", Mix_GetError());
-        isRunning = false;
-    } else {
-        Mix_PlayMusic(music, -1); // Phát nhạc lặp lại vô hạn
     }
 
     isRunning = true;
-
+      
     //thêm nhận vật
-    assets->AddTexture("terrain", "imgs/color1.png");
-    assets->AddTexture("player", "imgs/chick_total.png");
-    assets->AddTexture("taxi", "imgs/taxi.png");
-    assets->AddTexture("truck", "imgs/truck.png");
-    assets->AddTexture("redtruck", "imgs/redtruck.png");
-    assets->AddTexture("ambulance", "imgs/ambulance.png");
-    assets->AddTexture("trainleft", "imgs/trainleft.png");
-    assets->AddTexture("train", "imgs/train.png");
-    assets->AddTexture("musclecar", "imgs/musclecar.png");
-    assets->AddTexture("hatchback", "imgs/hatchback.png");
-    assets->AddTexture("luxurycar", "imgs/luxurycar.png");
-    assets->AddTexture("jeep", "imgs/jeep.png");
-    assets->AddTexture("microcar", "imgs/microcar.png");
-    assets->AddTexture("minivan", "imgs/minivan.png");
-    assets->AddTexture("SUV", "imgs/SUV.png");
-    assets->AddTexture("wagon", "imgs/wagon.png");
+    assets->AddTexture("terrain", "assets/color1.png");
+    assets->AddTexture("player", "assets/chick_total.png");
+    assets->AddTexture("taxi", "assets/taxi.png");
+    assets->AddTexture("truck", "assets/truck.png");
+    assets->AddTexture("redtruck", "assets/redtruck.png");
+    assets->AddTexture("ambulance", "assets/ambulance.png");
+    assets->AddTexture("trainleft", "assets/trainleft.png");
+    assets->AddTexture("train", "assets/train.png");
+    assets->AddTexture("musclecar", "assets/musclecar.png");
+    assets->AddTexture("hatchback", "assets/hatchback.png");
+    assets->AddTexture("luxurycar", "assets/luxurycar.png");
+    assets->AddTexture("jeep", "assets/jeep.png");
+    assets->AddTexture("microcar", "assets/microcar.png");
+    assets->AddTexture("minivan", "assets/minivan.png");
+    assets->AddTexture("SUV", "assets/SUV.png");
+    assets->AddTexture("wagon", "assets/wagon.png");
+
+    //thêm âm thanh
+    audio->loadMusic("thememusic", "sound/thememusic.mp3");
+    audio->loadSound("chickensound","sound/chicken_sound.mp3");
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap("imgs/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
+    gameMap->LoadMap("assets/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -109,7 +106,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addGroup(groupPlayer);
 
     //lấy phương tiện từ file và thêm các tính năng
-    fstream file("imgs/vehicles.txt", ios::in);
+    fstream file("assets/vehicles.txt", ios::in);
     if (file.is_open()){
         string line;
         while (getline(file, line)){
@@ -129,6 +126,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
         file.close();
     }
+
+    //phát âm thanh
+    audio->playMusic("thememusic", -1);
 
 }
 
@@ -209,11 +209,9 @@ void Game::render(){
 }
 
 void Game::quit(){
-    Mix_HaltMusic();
-    Mix_FreeMusic(music);
+    audio->quitAudio();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    Mix_CloseAudio();
     IMG_Quit();
     SDL_Quit();
     cout << "quit game";
