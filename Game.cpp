@@ -18,6 +18,9 @@ SDL_Event Game::event;//9
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
+bool isSquashed = false; // 25
+Uint32 squashStartTime = 0; // 25
+
 AssetManager* Game::assets = new AssetManager(&manager);
 AudioManager* Game::audio = new AudioManager(); //23
 
@@ -31,6 +34,7 @@ vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một ve
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
 vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
 vector<Entity*>& dangers = manager.getGroup(Game::groupDangers);//21
+vector<Entity*>& vehicles = manager.getGroup(Game::groupVehicles); // 26
 
 Game::Game(){}
 
@@ -74,6 +78,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //thêm nhận vật
     assets->AddTexture("terrain", "assets/color1.png");
     assets->AddTexture("player", "assets/chick_total.png");
+    assets->AddTexture("chickensquashed", "assets/chicken_squashed.png");
     assets->AddTexture("taxi", "assets/taxi.png");
     assets->AddTexture("truck", "assets/truck.png");
     assets->AddTexture("redtruck", "assets/redtruck.png");
@@ -92,6 +97,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //thêm âm thanh
     audio->loadMusic("thememusic", "sound/thememusic.mp3");
     audio->loadSound("chickensound","sound/chicken_sound.mp3");
+    audio->loadSound("crashsound", "sound/chicken_crashsound.mp3");
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -121,7 +127,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
             vehicle.addComponent<TransformComponent>(x, y, w, h, scale, veloX, veloY);
             vehicle.addComponent<SpriteComponent>(texID);
             vehicle.addComponent<ColliderComponent>(texID);
-            vehicle.addGroup(groupDangers);
+            vehicle.addGroup(groupVehicles);
         }
 
         file.close();
@@ -180,10 +186,32 @@ void Game::update(){
     // }
 
     // bắt sự kiện va chạm
+    for(auto& v : vehicles){
+        if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
+            player.getComponent<TransformComponent>().velocity.Zero();
+            audio->playSound("crashsound", 0);
+            player.getComponent<SpriteComponent>().setTex("chickensquashed");         
+            squashStartTime = SDL_GetTicks64();
+            isSquashed = true;            
+            return ; 
+        }
+    }
+
+    // nếu va chạm thì sẽ hiên trạng thái bị bẹp
+    if (isSquashed) {
+        // Kiểm tra nếu đã qua 2 giây kể từ khi bị đè
+        if (SDL_GetTicks64() - squashStartTime > 2000) {
+            player.getComponent<SpriteComponent>().setTex("player");
+            player.getComponent<TransformComponent>().position = {512, 970};
+            isSquashed = false;
+        }
+        return; // Không xử lý logic khác khi đang ở trạng thái "bị bẹp"
+    }
+
     for(auto& d : dangers){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, d->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
-            cout << "đâm rồi thằng ngu" << endl;
+            audio->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
         }
     }
@@ -191,8 +219,6 @@ void Game::update(){
     cout << "chicken position: (" 
     << player.getComponent<TransformComponent>().position.x << ", " 
     << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
-
-
 
 }
 
@@ -202,6 +228,7 @@ void Game::render(){
     for (auto& t : tiles) t->draw();
     //for (auto& car : cars) car->draw();
     //for (auto& c : colliders) c->draw();
+    for (auto& v : vehicles) v->draw();
     for (auto& d : dangers) d->draw();
     for (auto& p : players) p->draw();
 

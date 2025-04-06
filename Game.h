@@ -41,6 +41,7 @@ public:
         groupMap,
         groupPlayer,
         groupColliders,
+        groupVehicles,
         groupDangers
     };
 
