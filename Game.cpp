@@ -6,6 +6,7 @@
 #include "ECS/ECS.cpp" // 16
 #include "AssetManager.cpp" //19
 #include "AudioManager.cpp" // 23
+#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 
@@ -18,7 +19,7 @@ SDL_Event Game::event;//9
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
-bool isSquashed = false; // 25
+bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
 
 AssetManager* Game::assets = new AssetManager(&manager);
@@ -78,7 +79,6 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //thêm nhận vật
     assets->AddTexture("terrain", "assets/color1.png");
     assets->AddTexture("player", "assets/chick_total.png");
-    assets->AddTexture("chickensquashed", "assets/chicken_squashed.png");
     assets->AddTexture("taxi", "assets/taxi.png");
     assets->AddTexture("truck", "assets/truck.png");
     assets->AddTexture("redtruck", "assets/redtruck.png");
@@ -139,8 +139,10 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 }
 
 void Game::handleEvents(){
-   
-    SDL_PollEvent(&event);
+
+    if (isSquashed) return;
+    
+    SDL_PollEvent(&event);   
     
 }
 
@@ -190,18 +192,18 @@ void Game::update(){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
             audio->playSound("crashsound", 0);
-            player.getComponent<SpriteComponent>().setTex("chickensquashed");         
+            player.getComponent<SpriteComponent>().Play("Squash");         
             squashStartTime = SDL_GetTicks64();
             isSquashed = true;            
             return ; 
         }
     }
 
-    // nếu va chạm thì sẽ hiên trạng thái bị bẹp
+    //nếu va chạm thì sẽ hiên trạng thái bị bẹp
     if (isSquashed) {
-        // Kiểm tra nếu đã qua 2 giây kể từ khi bị đè
-        if (SDL_GetTicks64() - squashStartTime > 2000) {
-            player.getComponent<SpriteComponent>().setTex("player");
+        // Kiểm tra nếu đã qua 1 giây kể từ khi bị đè
+        if (SDL_GetTicks64() - squashStartTime > 1000) {
+            player.getComponent<SpriteComponent>().Play("Idle");
             player.getComponent<TransformComponent>().position = {512, 970};
             isSquashed = false;
         }

@@ -42,12 +42,14 @@ public:
         Animation rightwalk = Animation(2, 5, 100);
         Animation frontwalk = Animation(3, 5, 100);
         Animation backwalk = Animation(4, 5, 100);
+        Animation squash = Animation(5, 1, 100);
 
         animations.emplace("Idle", idle); // thêm animation vào map
         animations.emplace("Leftwalk", leftwalk);
         animations.emplace("Rightwalk", rightwalk);
         animations.emplace("Frontwalk", frontwalk);
         animations.emplace("Backwalk", backwalk);
+        animations.emplace("Squash", squash);
 
         Play("Idle");
 

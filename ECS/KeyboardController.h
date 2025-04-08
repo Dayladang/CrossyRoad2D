@@ -18,6 +18,11 @@ public :
 
     void update() override {
 
+            if ( Game::isSquashed){
+                transform->velocity.Zero();
+                return ;
+            } 
+
             if ( Game::event.type == SDL_QUIT) Game::isRunning = false;
 
             else if ( Game::event.type == SDL_KEYDOWN ){

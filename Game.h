@@ -33,6 +33,7 @@ public:
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
     static bool isRunning;
+    static bool isSquashed;
     static SDL_Rect screen;
     static AssetManager* assets;
     static AudioManager* audio;
