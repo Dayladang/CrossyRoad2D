@@ -21,7 +21,7 @@ Map::~Map(){
 
 }
 
-void Map::LoadMap(std::string path, int sizeX, int sizeY, int gridWidth) {
+void Map::LoadMap(string path, int sizeX, int sizeY, int gridWidth) {
     fstream mapFile(path, ios::in);
     if (!mapFile.is_open()) {
         cerr << "Failed to open map file: " << path << std::endl;

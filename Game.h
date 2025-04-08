@@ -7,7 +7,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "AssetManager.h" 
-#include "AudioManager.h"
 
 using namespace std;
 
@@ -36,7 +35,6 @@ public:
     static bool isSquashed;
     static SDL_Rect screen;
     static AssetManager* assets;
-    static AudioManager* audio;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

@@ -4,8 +4,7 @@
 #include "Vector2D.cpp"//8
 #include "Collision.cpp"//10
 #include "ECS/ECS.cpp" // 16
-#include "AssetManager.cpp" //19
-#include "AudioManager.cpp" // 23
+#include "AssetManager.cpp" //19 + 23
 #include <SDL2/SDL_ttf.h>
 
 using namespace std;
@@ -22,8 +21,7 @@ SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
 
-AssetManager* Game::assets = new AssetManager(&manager);
-AudioManager* Game::audio = new AudioManager(); //23
+AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
 bool Game::isRunning = false;// 17
  
@@ -70,38 +68,40 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
         isRunning = false;
     } 
 
-    if (audio->initAudio() == false){
+    if (assets->initAudio() == false){
         isRunning = false;
     }
 
     isRunning = true;
       
-    //thêm nhận vật
-    assets->AddTexture("terrain", "assets/color1.png");
-    assets->AddTexture("player", "assets/chick_total.png");
-    assets->AddTexture("taxi", "assets/taxi.png");
-    assets->AddTexture("truck", "assets/truck.png");
-    assets->AddTexture("redtruck", "assets/redtruck.png");
-    assets->AddTexture("ambulance", "assets/ambulance.png");
-    assets->AddTexture("trainleft", "assets/trainleft.png");
-    assets->AddTexture("train", "assets/train.png");
-    assets->AddTexture("musclecar", "assets/musclecar.png");
-    assets->AddTexture("hatchback", "assets/hatchback.png");
-    assets->AddTexture("luxurycar", "assets/luxurycar.png");
-    assets->AddTexture("jeep", "assets/jeep.png");
-    assets->AddTexture("microcar", "assets/microcar.png");
-    assets->AddTexture("minivan", "assets/minivan.png");
-    assets->AddTexture("SUV", "assets/SUV.png");
-    assets->AddTexture("wagon", "assets/wagon.png");
+    //thêm texture cho map
+    assets->AddTexture("terrain", "assets/maptile/tilesheet.png");
+
+    //thêm nhân vật
+    assets->AddTexture("player", "assets/images/chick_total.png");
+    assets->AddTexture("taxi", "assets/images/taxi.png");
+    assets->AddTexture("truck", "assets/images/truck.png");
+    assets->AddTexture("redtruck", "assets/images/redtruck.png");
+    assets->AddTexture("ambulance", "assets/images/ambulance.png");
+    assets->AddTexture("trainleft", "assets/images/trainleft.png");
+    assets->AddTexture("train", "assets/images/train.png");
+    assets->AddTexture("musclecar", "assets/images/musclecar.png");
+    assets->AddTexture("hatchback", "assets/images/hatchback.png");
+    assets->AddTexture("luxurycar", "assets/images/luxurycar.png");
+    assets->AddTexture("jeep", "assets/images/jeep.png");
+    assets->AddTexture("microcar", "assets/images/microcar.png");
+    assets->AddTexture("minivan", "assets/images/minivan.png");
+    assets->AddTexture("SUV", "assets/images/SUV.png");
+    assets->AddTexture("wagon", "assets/images/wagon.png");
 
     //thêm âm thanh
-    audio->loadMusic("thememusic", "sound/thememusic.mp3");
-    audio->loadSound("chickensound","sound/chicken_sound.mp3");
-    audio->loadSound("crashsound", "sound/chicken_crashsound.mp3");
+    assets->loadMusic("thememusic", "assets/sound/thememusic.mp3");
+    assets->loadSound("chickensound","assets/sound/chicken_sound.mp3");
+    assets->loadSound("crashsound", "assets/sound/chicken_crashsound.mp3");
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap("assets/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
+    gameMap->LoadMap("assets/maptile/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -112,7 +112,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addGroup(groupPlayer);
 
     //lấy phương tiện từ file và thêm các tính năng
-    fstream file("assets/vehicles.txt", ios::in);
+    fstream file("assets/maptile/vehicles.txt", ios::in);
     if (file.is_open()){
         string line;
         while (getline(file, line)){
@@ -134,7 +134,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     }
 
     //phát âm thanh
-    audio->playMusic("thememusic", -1);
+    assets->playMusic("thememusic", -1);
 
 }
 
@@ -191,7 +191,7 @@ void Game::update(){
     for(auto& v : vehicles){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
-            audio->playSound("crashsound", 0);
+            assets->playSound("crashsound", 0);
             player.getComponent<SpriteComponent>().Play("Squash");         
             squashStartTime = SDL_GetTicks64();
             isSquashed = true;            
@@ -213,7 +213,7 @@ void Game::update(){
     for(auto& d : dangers){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, d->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
-            audio->playSound("crashsound", 0);
+            assets->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
         }
     }
@@ -238,7 +238,7 @@ void Game::render(){
 }
 
 void Game::quit(){
-    audio->quitAudio();
+    assets->quitAudio();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
