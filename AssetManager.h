@@ -6,6 +6,7 @@
 #include <string>
 #include <map>
 #include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 
@@ -16,6 +17,7 @@ private:
     map< string , SDL_Texture* > textures; // vector lưu các texture
     map<string, Mix_Chunk*> sounds;
     map<string, Mix_Music*> music;
+    map<string, TTF_Font*> fonts;
 
 public:
 
@@ -37,6 +39,11 @@ public:
     void stopSound(string id);
     void quitAudio();
 
+    //Text management
+    bool initTTF();
+    void loadFont(string id, const char* path, int fsize);
+    TTF_Font* GetFont(string id);
+    void quitTTF();
 };
 
 #endif

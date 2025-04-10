@@ -5,7 +5,6 @@
 #include "Collision.cpp"//10
 #include "ECS/ECS.cpp" // 16
 #include "AssetManager.cpp" //19 + 23
-#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 
@@ -26,8 +25,8 @@ AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 bool Game::isRunning = false;// 17
  
 Entity& player = manager.addEntity();//6
+Entity& label = manager.addEntity(); //25
 // vector<Entity*> cars;
-Entity& train = manager.addEntity();
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
@@ -72,6 +71,10 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
         isRunning = false;
     }
 
+    if (!assets->initTTF()){
+        isRunning = false;
+    }
+
     isRunning = true;
       
     //thêm texture cho map
@@ -98,6 +101,11 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadMusic("thememusic", "assets/sound/thememusic.mp3");
     assets->loadSound("chickensound","assets/sound/chicken_sound.mp3");
     assets->loadSound("crashsound", "assets/sound/chicken_crashsound.mp3");
+
+    //thêm font chữ
+    assets->loadFont("font", "assets/fonts/vgafix.fon", 20);
+    SDL_Color colour = {255, 0, 0, 255};
+    label.addComponent<MiniText>(10, 10, "Test text", string("font"), colour);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -135,6 +143,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //phát âm thanh
     assets->playMusic("thememusic", -1);
+
+    //viết chữ
+    label.getComponent<MiniText>().SetLabelText();
 
 }
 
@@ -233,6 +244,7 @@ void Game::render(){
     for (auto& v : vehicles) v->draw();
     for (auto& d : dangers) d->draw();
     for (auto& p : players) p->draw();
+    label.draw();
 
     SDL_RenderPresent(renderer);
 }

@@ -7,6 +7,7 @@
 #include "KeyboardController.h"
 #include "ColliderComponent.h"
 #include "TileComponent.h"
+#include "MiniText.h"
 
 
 #endif

@@ -66,3 +66,30 @@ void AssetManager::quitAudio(){
     Mix_CloseAudio();
     Mix_Quit();
 }
+
+bool AssetManager::initTTF(){
+    if (TTF_Init() == -1){
+        cerr << "loi khoi tao ttf %s\n" << TTF_GetError();
+        return false;
+    }
+    return true;
+}
+
+void AssetManager::loadFont(string id, const char* path, int fsize){
+    TTF_Font* font = TTF_OpenFont(path, fsize);
+    if (font == NULL){
+        cerr << "loi mo font %s\n" << TTF_GetError();
+    }
+    fonts[id] = font;
+}
+
+TTF_Font* AssetManager::GetFont(string id){
+    return fonts[id];
+}
+
+void AssetManager::quitTTF(){
+    for (auto& f : fonts){
+        TTF_CloseFont(f.second);
+    }
+    TTF_Quit();
+}
