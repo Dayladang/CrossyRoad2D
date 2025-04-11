@@ -37,13 +37,13 @@ public:
     void playMusic(string id, int loop);
     void pauseMusic();
     void stopSound(string id);
-    void quitAudio();
 
     //Text management
     bool initTTF();
     void loadFont(string id, const char* path, int fsize);
     TTF_Font* GetFont(string id);
-    void quitTTF();
+
+    void quit();
 };
 
 #endif

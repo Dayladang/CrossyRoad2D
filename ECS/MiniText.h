@@ -13,17 +13,19 @@ using namespace std;
 class MiniText : public Component {
 
 public:
-    MiniText(int xpos, int ypos, const char* text, string font, SDL_Color& color) : labelText(text), font(font), color(color) {
+    MiniText(int xpos, int ypos, string text, string font, SDL_Color& color) : labelText(text), font(font), color(color) {
         position.x = xpos;
         position.y = ypos;
+
+        SetLabelText(labelText, font);
     }
 
     ~MiniText(){
 
     }
 
-    void SetLabelText(){
-        SDL_Surface* surface = TTF_RenderText_Solid(Game::assets->GetFont(font), labelText, color);
+    void SetLabelText(string text, string font){
+        SDL_Surface* surface = TTF_RenderText_Solid(Game::assets->GetFont(font), text.c_str(), color);
         labelTexture = SDL_CreateTextureFromSurface(Game::renderer, surface);
         SDL_FreeSurface(surface);
 
@@ -34,11 +36,17 @@ public:
         SDL_RenderCopy(Game::renderer, labelTexture, NULL, &position);
     }
 
+    // void changedText(const char* text){
+    //     SDL_DestroyTexture(labelTexture);
+    //     labelText = text;      
+    //     SetLabelText();
+    // }
+
 private:
     SDL_Texture* labelTexture;
     SDL_Rect position;
     SDL_Color color;
-    const char* labelText;
+    string labelText;
     string font;
 };
 

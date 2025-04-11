@@ -55,18 +55,6 @@ void AssetManager::stopSound(string id){
     Mix_HaltChannel(-1);
 }
 
-void AssetManager::quitAudio(){
-    Mix_HaltMusic();
-    for (auto& s : sounds){
-        Mix_FreeChunk(s.second);
-    }
-    for (auto& m : music){
-        Mix_FreeMusic(m.second);
-    }
-    Mix_CloseAudio();
-    Mix_Quit();
-}
-
 bool AssetManager::initTTF(){
     if (TTF_Init() == -1){
         cerr << "loi khoi tao ttf %s\n" << TTF_GetError();
@@ -87,9 +75,22 @@ TTF_Font* AssetManager::GetFont(string id){
     return fonts[id];
 }
 
-void AssetManager::quitTTF(){
+void AssetManager::quit(){
+    //quit mixer
+    Mix_HaltMusic();
+    for (auto& s : sounds){
+        Mix_FreeChunk(s.second);
+    }
+    for (auto& m : music){
+        Mix_FreeMusic(m.second);
+    }
+    Mix_CloseAudio();
+    Mix_Quit();
+
+    //quit ttf
     for (auto& f : fonts){
         TTF_CloseFont(f.second);
     }
     TTF_Quit();
+
 }

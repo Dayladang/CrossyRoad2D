@@ -5,6 +5,7 @@
 #include "Collision.cpp"//10
 #include "ECS/ECS.cpp" // 16
 #include "AssetManager.cpp" //19 + 23
+#include "ScoreSystem.cpp" // 27
 
 using namespace std;
 
@@ -16,6 +17,10 @@ SDL_Event Game::event;//9
 
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
+
+//màu chữ
+SDL_Color black = {0, 0, 0, 255};
+ScoreSystem* scoreSystem; // 27
 
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
@@ -34,7 +39,9 @@ vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
 vector<Entity*>& dangers = manager.getGroup(Game::groupDangers);//21
 vector<Entity*>& vehicles = manager.getGroup(Game::groupVehicles); // 26
 
-Game::Game(){}
+Game::Game(){
+    scoreSystem = new ScoreSystem();
+}
 
 Game::~Game(){}
 
@@ -103,9 +110,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadSound("crashsound", "assets/sound/chicken_crashsound.mp3");
 
     //thêm font chữ
-    assets->loadFont("font", "assets/fonts/vgafix.fon", 20);
-    SDL_Color colour = {255, 0, 0, 255};
-    label.addComponent<MiniText>(10, 10, "Test text", string("font"), colour);
+    assets->loadFont("font", "assets/fonts/vgafix.fon", 30);
+    label.addComponent<MiniText>(10, 10, "", "font", black);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -118,6 +124,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addComponent<KeyboardController>();
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayer);
+
+    //thêm hệ thống điểm
+    scoreSystem->setLastPlayerY(player.getComponent<TransformComponent>().position.y); // lưu vị trí cuối của player để so sánh với vị trí hiện tại
 
     //lấy phương tiện từ file và thêm các tính năng
     fstream file("assets/maptile/vehicles.txt", ios::in);
@@ -145,7 +154,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->playMusic("thememusic", -1);
 
     //viết chữ
-    label.getComponent<MiniText>().SetLabelText();
+    //label.getComponent<MiniText>().SetLabelText();
+    //lastPlayerY = player.getComponent<TransformComponent>().position.y; // lưu vị trí cuối của player để so sánh với vị trí hiện tại
 
 }
 
@@ -162,6 +172,8 @@ void Game::update(){
     //mapcollider
     SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider; // lấy collider của player
     Vector2D playerPos = player.getComponent<TransformComponent>().position; // lấy vị trí của player để khi va chạm với vật cản thì trở về trạng thái chưa va chạm 
+
+    int currentPlayerY = playerPos.y; // lấy vị trí hiện tại của player
 
     manager.refresh();//8
     manager.update();//6 
@@ -198,6 +210,10 @@ void Game::update(){
     // currTransform.position.y = prevTransform.position.y;
     // }
 
+    //ghi điểm số 
+    scoreSystem->updateScore(currentPlayerY); // cập nhật điểm số dựa trên vị trí hiện tại của player
+    label.getComponent<MiniText>().SetLabelText(scoreSystem->getScoreText(), "font");
+
     // bắt sự kiện va chạm
     for(auto& v : vehicles){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
@@ -229,9 +245,10 @@ void Game::update(){
         }
     }
 
-    cout << "chicken position: (" 
-    << player.getComponent<TransformComponent>().position.x << ", " 
-    << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+    // cout << "chicken position: (" 
+    // << player.getComponent<TransformComponent>().position.x << ", " 
+    // << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+
 
 }
 
@@ -250,7 +267,10 @@ void Game::render(){
 }
 
 void Game::quit(){
-    assets->quitAudio();
+    if (scoreSystem){
+        scoreSystem->saveHighScore();
+    }
+    assets->quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
