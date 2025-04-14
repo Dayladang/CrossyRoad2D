@@ -25,9 +25,9 @@ ScoreSystem* scoreSystem = new ScoreSystem(); // 27
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
 
-bool Game::playButtonClicked = false; //28
-Entity* Game::playButton = NULL;
-bool eraseLogo = false;// 29
+bool Game::playButtonClicked = false; // 28
+Entity* Game::playButton = NULL;// 28
+int logoPositionX = 450;// 29
 
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
@@ -118,12 +118,12 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //thêm logo và nút chơi
     assets->AddTexture("logo", "assets/images/logo.png");
-    logo.addComponent<TransformComponent>(300, 700, 200, 92, 1, 0, 0);
+    logo.addComponent<TransformComponent>(logoPositionX, 700, 200, 92, 1, 0, 0);
     logo.addComponent<SpriteComponent>("logo");
 
     assets->AddTexture("play_button", "assets/images/Play_Button.png");
     playButton = &manager.addEntity(); //28
-    playButton->addComponent<TransformComponent>(530, 970, 100, 41, 1, 0, 0); 
+    playButton->addComponent<TransformComponent>(450, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
 
     //vẽ map
@@ -171,8 +171,6 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //phát âm thanh
     assets->playMusic("thememusic", -1);
 
-    //viết chữ
-    //label.getComponent<MiniText>().SetLabelText();
 }
 
 void Game::handleEvents(){
@@ -185,6 +183,7 @@ void Game::handleEvents(){
 
 void Game::update(){
     
+    // chỉ update cho xe chạy nếu chưa nhấn nút chơi
     if (!playButtonClicked) {
         manager.refresh();//8
         manager.update();//6 
@@ -198,12 +197,20 @@ void Game::update(){
     manager.refresh();//8
     manager.update();//6 
 
-    if (playButtonClicked) {
-        logo.getComponent<TransformComponent>().velocity.x = 8; // di chuyển logo sang phải
-        if (logo.getComponent<TransformComponent>().position.x > 1024 + 100) {
-            eraseLogo = true;
-            logo.destroy(); 
-            cout << eraseLogo << endl;
+    //logo moving
+    if (isLogoActive) {
+        if (playButtonClicked) {
+            logoPositionX += 8;
+            
+            // Cộng vào vị trí của logo nếu nó chưa bị xóa 
+            if (logo.hasComponent<TransformComponent>()) {
+                logo.getComponent<TransformComponent>().position.x = logoPositionX;
+            }
+            
+            if (logoPositionX > 1024) {
+                isLogoActive = false;               
+                logo.destroy();
+            }
         }
     }
 
@@ -278,7 +285,6 @@ void Game::update(){
     // << player.getComponent<TransformComponent>().position.x << ", " 
     // << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
 
-
 }
 
 void Game::render(){   
@@ -294,11 +300,11 @@ void Game::render(){
     
     if (playButtonClicked) label.draw(); // Score text
     
-    if (logo.isActive() && !eraseLogo) {
+    if (logo.isActive() && isLogoActive) {
         logo.draw();
     }
     
-    // Draw play button only if not yet clicked
+    // vẽ button khi chưa bấm 
     if (!playButtonClicked && playButton != NULL) {
         playButton->draw();
     }

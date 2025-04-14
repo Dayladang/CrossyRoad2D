@@ -37,6 +37,7 @@ public:
     static AssetManager* assets;
     static bool playButtonClicked;
     static Entity* playButton; //28
+    bool isLogoActive = true;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

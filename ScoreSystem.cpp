@@ -4,7 +4,7 @@
 
 using namespace std;
 
-ScoreSystem::ScoreSystem() : score(0), highScore(0), lastRow(1000), tileSize(32), startRow(lastRow / tileSize) {
+ScoreSystem::ScoreSystem() : score(0), highScore(0), lastRow(1000), tileSize(32), startRow(0) {
     loadHighScore();
 }
 
