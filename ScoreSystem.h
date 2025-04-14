@@ -12,26 +12,16 @@ class ScoreSystem {
 private:
     int score;
     int highScore;
-    int lastPlayerY;
+    int lastRow;
+    int startRow;
+    int tileSize;
 
 public:
     ScoreSystem();
     ~ScoreSystem();
 
-    // int getScore() const {
-    //     return score;
-    // }
-
-    // int getHighScore() const {
-    //     return highScore;
-    // }
-
-    // int getLastPlayerY() const {
-    //     return lastPLayerY;
-    // }
-
-    void setLastPlayerY(int y) {
-        lastPlayerY = y;
+    void setLastPlayerRow(int row) {
+        lastRow = row;
     }
 
     void addScore(int points);

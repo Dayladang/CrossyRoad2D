@@ -20,10 +20,14 @@ SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
 //màu chữ
 SDL_Color black = {0, 0, 0, 255};
-ScoreSystem* scoreSystem; // 27
+ScoreSystem* scoreSystem = new ScoreSystem(); // 27
 
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
+
+bool Game::playButtonClicked = false; //28
+Entity* Game::playButton = NULL;
+bool eraseLogo = false;// 29
 
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
@@ -31,6 +35,7 @@ bool Game::isRunning = false;// 17
  
 Entity& player = manager.addEntity();//6
 Entity& label = manager.addEntity(); //25
+Entity& logo = manager.addEntity(); //28
 // vector<Entity*> cars;
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
@@ -39,9 +44,7 @@ vector<Entity*>& colliders = manager.getGroup(Game::groupColliders);//18
 vector<Entity*>& dangers = manager.getGroup(Game::groupDangers);//21
 vector<Entity*>& vehicles = manager.getGroup(Game::groupVehicles); // 26
 
-Game::Game(){
-    scoreSystem = new ScoreSystem();
-}
+Game::Game(){}
 
 Game::~Game(){}
 
@@ -113,6 +116,16 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadFont("font", "assets/fonts/vgafix.fon", 30);
     label.addComponent<MiniText>(10, 10, "", "font", black);
 
+    //thêm logo và nút chơi
+    assets->AddTexture("logo", "assets/images/logo.png");
+    logo.addComponent<TransformComponent>(300, 700, 200, 92, 1, 0, 0);
+    logo.addComponent<SpriteComponent>("logo");
+
+    assets->AddTexture("play_button", "assets/images/Play_Button.png");
+    playButton = &manager.addEntity(); //28
+    playButton->addComponent<TransformComponent>(530, 970, 100, 41, 1, 0, 0); 
+    playButton->addComponent<SpriteComponent>("play_button");
+
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
     gameMap->LoadMap("assets/maptile/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
@@ -125,8 +138,13 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     player.addComponent<ColliderComponent>("player");
     player.addGroup(groupPlayer);
 
+    //lấy màn hình bắt đầu bằng vị trí của nhân vật
+    screen.x = player.getComponent<TransformComponent>().position.x - WIDTH / 2;
+    screen.y = screen.h;
+
     //thêm hệ thống điểm
-    scoreSystem->setLastPlayerY(player.getComponent<TransformComponent>().position.y); // lưu vị trí cuối của player để so sánh với vị trí hiện tại
+    int initialRow = player.getComponent<TransformComponent>().position.y / 32; // Giả sử 32 là kích thước ô
+    scoreSystem->setLastPlayerRow(initialRow); 
 
     //lấy phương tiện từ file và thêm các tính năng
     fstream file("assets/maptile/vehicles.txt", ios::in);
@@ -155,28 +173,39 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //viết chữ
     //label.getComponent<MiniText>().SetLabelText();
-    //lastPlayerY = player.getComponent<TransformComponent>().position.y; // lưu vị trí cuối của player để so sánh với vị trí hiện tại
-
 }
 
 void Game::handleEvents(){
 
     if (isSquashed) return;
     
-    SDL_PollEvent(&event);   
+    SDL_PollEvent(&event); 
     
 }
 
 void Game::update(){
+    
+    if (!playButtonClicked) {
+        manager.refresh();//8
+        manager.update();//6 
+        return;
+    } 
 
     //mapcollider
     SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider; // lấy collider của player
     Vector2D playerPos = player.getComponent<TransformComponent>().position; // lấy vị trí của player để khi va chạm với vật cản thì trở về trạng thái chưa va chạm 
 
-    int currentPlayerY = playerPos.y; // lấy vị trí hiện tại của player
-
     manager.refresh();//8
     manager.update();//6 
+
+    if (playButtonClicked) {
+        logo.getComponent<TransformComponent>().velocity.x = 8; // di chuyển logo sang phải
+        if (logo.getComponent<TransformComponent>().position.x > 1024 + 100) {
+            eraseLogo = true;
+            logo.destroy(); 
+            cout << eraseLogo << endl;
+        }
+    }
 
     //mapcollider
     for (auto& c : colliders){
@@ -211,7 +240,7 @@ void Game::update(){
     // }
 
     //ghi điểm số 
-    scoreSystem->updateScore(currentPlayerY); // cập nhật điểm số dựa trên vị trí hiện tại của player
+    scoreSystem->updateScore(player.getComponent<TransformComponent>().position.y);
     label.getComponent<MiniText>().SetLabelText(scoreSystem->getScoreText(), "font");
 
     // bắt sự kiện va chạm
@@ -258,10 +287,21 @@ void Game::render(){
     for (auto& t : tiles) t->draw();
     //for (auto& car : cars) car->draw();
     //for (auto& c : colliders) c->draw();
+
     for (auto& v : vehicles) v->draw();
     for (auto& d : dangers) d->draw();
-    for (auto& p : players) p->draw();
-    label.draw();
+    for (auto& p : players) p->draw(); 
+    
+    if (playButtonClicked) label.draw(); // Score text
+    
+    if (logo.isActive() && !eraseLogo) {
+        logo.draw();
+    }
+    
+    // Draw play button only if not yet clicked
+    if (!playButtonClicked && playButton != NULL) {
+        playButton->draw();
+    }
 
     SDL_RenderPresent(renderer);
 }

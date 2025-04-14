@@ -62,6 +62,26 @@ public :
  
                 if (!check[SDL_SCANCODE_RSHIFT]) transform->speed = 1;
             }
+
+            if (Game::event.type == SDL_MOUSEBUTTONDOWN) {
+                if (Game::event.button.button == SDL_BUTTON_LEFT) {
+                    int ngumouseX, ngumouseY;
+                    SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
+
+                    int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
+                    int mouseY = ngumouseY + Game::screen.y;
+
+                    cout << mouseX << " " << mouseY << endl;
+                    if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
+                    mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
+                    mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
+                    mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
+                        Game::playButtonClicked = true; // đánh dấu đã nhấn nút chơi
+                        cout << "Play button clicked \n";
+                    }
+                }        
+                
+            }
         }
 
 };

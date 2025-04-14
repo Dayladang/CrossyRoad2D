@@ -35,6 +35,8 @@ public:
     static bool isSquashed;
     static SDL_Rect screen;
     static AssetManager* assets;
+    static bool playButtonClicked;
+    static Entity* playButton; //28
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,
@@ -45,6 +47,6 @@ public:
     };
 
 private:   
-    SDL_Window* window; 
+    SDL_Window* window;  
 };
 #endif// GRAPHIC_H

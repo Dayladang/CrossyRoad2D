@@ -1,8 +1,10 @@
 #include "ScoreSystem.h"
+#include <iostream>
+#include <sstream>
 
 using namespace std;
 
-ScoreSystem::ScoreSystem() : score(0), highScore(0), lastPlayerY(970){
+ScoreSystem::ScoreSystem() : score(0), highScore(0), lastRow(1000), tileSize(32), startRow(lastRow / tileSize) {
     loadHighScore();
 }
 
@@ -10,7 +12,7 @@ ScoreSystem::~ScoreSystem() {
     saveHighScore();
 }
 
-void ScoreSystem::addScore(int points){
+void ScoreSystem::addScore(int points) {
     score += points;
     if (score > highScore) {
         highScore = score;
@@ -45,17 +47,25 @@ string ScoreSystem::getScoreText() {
 }
 
 void ScoreSystem::updateScore(int currentPlayerY) {
-    cout << "Before update: currentPlayerY=" << currentPlayerY 
-         << ", lastPlayerY=" << lastPlayerY << endl;    
+    
+    int currentRow = currentPlayerY / tileSize;// Chuyển đổi vị trí Y thành chỉ số hàng
 
-    if (currentPlayerY < lastPlayerY && lastPlayerY > 0) {
-        int points = (int) round( (lastPlayerY - currentPlayerY) / 5 ); //tính điểm dựa trên khoảng cách giữa vị trí cũ và vị trí hiện tại
-        addScore(points);
+    //cout << "Current Row: " << currentRow << ", Last Row: " << lastRow << endl;
+
+    if (currentRow == startRow) {
+        cout << "PLayer is on the starting row \n";
+        resetScore();
+        lastRow = currentRow;
     }
-
-    lastPlayerY = currentPlayerY; //cập nhật vị trí cũ
-
-    cout << "After update: lastPlayerY=" << lastPlayerY 
-         << ", score=" << score << endl;
-
+    
+    if (currentRow < lastRow) {     
+        int rowsMoved = lastRow - currentRow;// Tính số hàng đã di chuyển
+        int points = rowsMoved;
+        
+        //cout << "Moving up " << rowsMoved << " rows, adding " << points << " points" << endl;
+        
+        addScore(points);
+           
+        lastRow = currentRow; // Cập nhật hàng hiện tại
+    }
 }

@@ -133,7 +133,7 @@ public:
             vector<Entity*>& v = groupedEntities[i];
 
             auto ngu = remove_if(v.begin(), v.end(), [i](Entity* mEntity){
-                return !(mEntity->isActive() || mEntity->hasGroup(i));//trả về true nếu entity không hoạt động hoặc không có trong nhóm
+                return !mEntity->isActive() || !mEntity->hasGroup(i);//trả về true nếu entity không hoạt động hoặc không có trong nhóm
                 });
 
             v.erase(ngu, v.end());
@@ -141,7 +141,7 @@ public:
 
         auto ngu = remove_if( entities.begin(), entities.end(), [](const unique_ptr<Entity> &mEntity) 
             {
-                return !(mEntity->isActive());// trả về true nếu entity hết hoạt động
+                return !mEntity->isActive();// trả về true nếu entity hết hoạt động
             });
 
         entities.erase(ngu, entities.end() ); // xóa các phần tử được remove_if chuyển xuống dưới
@@ -161,6 +161,17 @@ public:
         entities.push_back(move(uPtr));// move : chuyển quyền sở hữu của uPtr sang entities
         return *e;
     }
+
+    // void removeEntity(Entity* entity) {
+    //     auto it = remove_if(entities.begin(), entities.end(), [](const unique_ptr<Entity>& e)
+    //     {
+    //         return e.get() == entity; // so sánh địa chỉ của entity cần tìm với địa chỉ của các entity trong vector entities nếu trùng nhau thì trả về true và gán cho it       
+    //     });
+
+    //     if (it != entities.end()) {
+    //         entities.erase(it, entities.end()); 
+    //     }
+    // }
 };
 
 #endif
