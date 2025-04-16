@@ -4,6 +4,8 @@
 #include <SDL2/SDL.h>
 #include <string>
 #include <fstream>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -32,6 +34,26 @@ public:
 
     void updateScore(int currentPlayerY);
 
+};
+
+
+struct Player {
+    string name;
+    int points;
+};
+
+class LeaderBoard {
+
+private:
+    string playerName;
+public :
+    vector<Player> v;
+
+    void addPlayer(const string& name, int score);
+
+    string addPLayerName();
+
+    void render();
 };
 
 #endif

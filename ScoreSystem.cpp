@@ -1,10 +1,11 @@
 #include "ScoreSystem.h"
+#include "ECS/MiniText.h"
 #include <iostream>
 #include <sstream>
 
 using namespace std;
 
-ScoreSystem::ScoreSystem() : score(0), highScore(0), lastRow(1000), tileSize(32), startRow(0) {
+ScoreSystem::ScoreSystem() : score(0), highScore(0), lastRow(1000), tileSize(32), startRow(970 / 32) {
     loadHighScore();
 }
 
@@ -27,7 +28,7 @@ void ScoreSystem::resetScore() {
 void ScoreSystem::saveHighScore() {
     fstream file("assets/score/highscore.txt", ios::out);
     if (file.is_open()) {
-        file << highScore;
+        file << 0;
         file.close();
     }
 }
@@ -53,7 +54,6 @@ void ScoreSystem::updateScore(int currentPlayerY) {
     //cout << "Current Row: " << currentRow << ", Last Row: " << lastRow << endl;
 
     if (currentRow == startRow) {
-        cout << "PLayer is on the starting row \n";
         resetScore();
         lastRow = currentRow;
     }
@@ -68,4 +68,48 @@ void ScoreSystem::updateScore(int currentPlayerY) {
            
         lastRow = currentRow; // Cập nhật hàng hiện tại
     }
+}
+
+void LeaderBoard::addPlayer(const string& name, int score){
+    v.push_back({name, score});
+    sort(v.begin(), v.end(), [](const Player a, const Player b) {
+        if (a.points == b.points) return a.name > b.name;
+        else return a.points > b.points;
+    });
+    if (v.size() > 10) v.resize(10); // Giới hạn top 10
+
+    //truyền tên và điểm vào file
+    fstream file("assets/score/highscore.txt", ios::out);
+    if (file.is_open()) {
+        for (auto& x : v) file << x.name << " " << x.points << endl;
+        file.close();
+    } 
+}
+
+string LeaderBoard::addPLayerName() {
+    bool getName = true;
+    SDL_StartTextInput();
+    SDL_Event e;
+    while (getName) {
+        while (SDL_PollEvent(&e)) {
+            const Uint8* input = SDL_GetKeyboardState(NULL);
+            
+            if (input[SDL_TEXTINPUT]) {
+                playerName += e.text.text;
+            }
+            if (input[SDL_SCANCODE_RETURN]) { // return là phím enter
+                getName = false;
+            }
+        }
+
+        // MiniText* txt;
+        // txt->SetLabelText(playerName, "font");
+    }
+    SDL_StopTextInput();
+
+    return playerName;
+}
+
+void LeaderBoard::render(){
+
 }
