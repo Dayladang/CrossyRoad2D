@@ -27,7 +27,9 @@ Uint32 squashStartTime = 0; // 25
 
 bool Game::playButtonClicked = false; // 28
 Entity* Game::playButton = NULL;// 28
-int logoPositionX = 450;// 29
+int logoPositionX = 420;// 29
+
+bool Game::isGamelose = false;// 30
 
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
@@ -36,6 +38,7 @@ bool Game::isRunning = false;// 17
 Entity& player = manager.addEntity();//6
 Entity& label = manager.addEntity(); //25
 Entity& logo = manager.addEntity(); //28
+Entity& writeName = manager.addEntity(); //30
 // vector<Entity*> cars;
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
@@ -107,6 +110,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->AddTexture("SUV", "assets/images/SUV.png");
     assets->AddTexture("wagon", "assets/images/wagon.png");
 
+    //thêm màn hình điểm khi thua
+    assets->AddTexture("losing_screen", "assets/images/losing_screen.png");
+
     //thêm âm thanh
     assets->loadMusic("thememusic", "assets/sound/thememusic.mp3");
     assets->loadSound("chickensound","assets/sound/chicken_sound.mp3");
@@ -123,8 +129,10 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     assets->AddTexture("play_button", "assets/images/Play_Button.png");
     playButton = &manager.addEntity(); //28
-    playButton->addComponent<TransformComponent>(450, 970, 100, 41, 1, 0, 0); 
+    playButton->addComponent<TransformComponent>(460, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
+
+    writeName.addComponent<MiniText>(256, 256,"Your name is : \n", "font", black);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -257,7 +265,7 @@ void Game::update(){
             assets->playSound("crashsound", 0);
             player.getComponent<SpriteComponent>().Play("Squash");         
             squashStartTime = SDL_GetTicks64();
-            isSquashed = true;            
+            isSquashed = true;           
             return ; 
         }
     }
@@ -268,6 +276,7 @@ void Game::update(){
         if (SDL_GetTicks64() - squashStartTime > 1000) {
             player.getComponent<SpriteComponent>().Play("Idle");
             player.getComponent<TransformComponent>().position = {512, 970};
+            isGamelose = true;
             isSquashed = false;
         }
         return; // Không xử lý logic khác khi đang ở trạng thái "bị bẹp"
@@ -278,6 +287,12 @@ void Game::update(){
             player.getComponent<TransformComponent>().velocity.Zero();
             assets->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
+        }
+    }
+
+    if (isGamelose) {
+        for (auto& v : vehicles) {
+            v->getComponent<TransformComponent>().velocity.Zero();
         }
     }
 
@@ -307,9 +322,50 @@ void Game::render(){
     // vẽ button khi chưa bấm 
     if (!playButtonClicked && playButton != NULL) {
         playButton->draw();
+    } 
+
+    if (isGamelose) {
+        SDL_Texture* tmp = assets->GetTexture("losing_screen");
+        int imgW = 300, imgH = 325;
+        SDL_Rect dstRect;
+        dstRect.x = (WIDTH - imgW) / 2;
+        dstRect.y = (HEIGHT - imgH) / 2;
+
+        writeName.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
     }
 
     SDL_RenderPresent(renderer);
+}
+
+void Game::resetGame() {
+    isGamelose = false;
+
+    playButtonClicked = false;
+
+    logoPositionX = 420;
+
+     // Đặt lại vị trí và trạng thái player
+     player.getComponent<TransformComponent>().position = {512, 970};
+     player.getComponent<TransformComponent>().velocity.Zero();
+     player.getComponent<SpriteComponent>().Play("Idle");
+ 
+     // Đặt lại điểm số
+     scoreSystem->resetScore();
+ 
+     // Đặt lại logo
+     logoPositionX = 420;
+     if (!logo.isActive()) {
+         // Nếu logo đã bị xóa, tạo lại logo
+         logo = manager.addEntity();
+         logo.addComponent<TransformComponent>(logoPositionX, 700, 200, 92, 1, 0, 0);
+         logo.addComponent<SpriteComponent>("logo");
+     } else {
+         // Nếu logo còn tồn tại, chỉ cần đặt lại vị trí
+         logo.getComponent<TransformComponent>().position.x = logoPositionX;
+         logo.getComponent<TransformComponent>().position.y = 700;
+     }
+     isLogoActive = true;
+
 }
 
 void Game::quit(){

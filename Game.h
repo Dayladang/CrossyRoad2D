@@ -27,6 +27,7 @@ public:
     void update();
     bool running(){ return isRunning;};
     void render();
+    void resetGame();
     void quit();
 
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
@@ -38,6 +39,7 @@ public:
     static bool playButtonClicked;
     static Entity* playButton; //28
     bool isLogoActive = true;
+    static bool isGamelose;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

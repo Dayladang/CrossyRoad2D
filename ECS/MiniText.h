@@ -36,11 +36,16 @@ public:
         SDL_RenderCopy(Game::renderer, labelTexture, NULL, &position);
     }
 
-    // void changedText(const char* text){
-    //     SDL_DestroyTexture(labelTexture);
-    //     labelText = text;      
-    //     SetLabelText();
-    // }
+    void drawWithBackground(int x, int y, int w, int h, SDL_Texture* bgTexture) { // vẽ text cho màn hình thua
+        
+        SDL_Rect dstRect = {x, y, w, h};
+        position.x = w / 2;
+        position.y = h / 2;
+        
+        SDL_RenderCopy(Game::renderer, bgTexture, NULL, &dstRect);
+    
+        SDL_RenderCopy(Game::renderer, labelTexture, NULL, &position);
+    }
 
 private:
     SDL_Texture* labelTexture;
