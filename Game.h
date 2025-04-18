@@ -4,8 +4,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
-#include <SDL2/SDL.h>
-#include <SDL2/SDL_image.h>
+#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL.h"
+#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL_image.h"
 #include "AssetManager.h" 
 
 using namespace std;

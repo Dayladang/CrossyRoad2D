@@ -1,7 +1,7 @@
 #ifndef TILECOMPONENT_H
 #define TILECOMPONENT_H
 
-#include <SDL2/SDL.h>
+#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL.h"
 #include "ECS.h"
 #include "../Vector2D.h"
 #include "../Game.h"

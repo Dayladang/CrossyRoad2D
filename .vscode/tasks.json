@@ -2,7 +2,7 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe build active file",
+            "label": "C/C++: Basic Build",
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
@@ -22,7 +22,7 @@
         },
         {
             "type": "cppbuild",
-            "label": "C/C++: g++.exe build active file",
+            "label": "C/C++: SDL2 Build",
             "command": "C:\\msys64\\ucrt64\\bin\\g++.exe",
             "args": [
                 "-fdiagnostics-color=always",
@@ -45,11 +45,31 @@
             "problemMatcher": [
                 "$gcc"
             ],
+            "group": "build",
+            "detail": "compiler: C:\\msys64\\ucrt64\\bin\\g++.exe"
+        },
+        {
+            "label": "Run",
+            "type": "shell",
+            "command": "${fileDirname}\\${fileBasenameNoExtension}.exe",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            },
+            "problemMatcher": [],
+            "detail": "Run the compiled program"
+        },
+        {
+            "label": "Build and Run",
+            "dependsOn": [
+                "C/C++: SDL2 Build",
+                "Run"
+            ],
+            "dependsOrder": "sequence",
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "detail": "compiler: C:\\msys64\\ucrt64\\bin\\g++.exe"
+            }
         }
     ],
     "version": "2.0.0"
