@@ -70,7 +70,10 @@ public:
     }
 
     bool isActive() { return active; }
-    void destroy() { active = false; }
+
+    void destroy() { 
+        active = false; 
+    }
 
     bool hasGroup(Group mGroup){
         return groupBitset[mGroup]; // trả về true nếu entity có trong Group
@@ -124,7 +127,9 @@ public:
         for (auto& e : entities) e->update();
     }
     void draw(){
-        for (auto& e : entities) e->draw();
+        for (auto& e : entities) {
+            if (e->isActive()) e->draw();
+        }
     }
 
     void refresh(){
@@ -162,16 +167,6 @@ public:
         return *e;
     }
 
-    // void removeEntity(Entity* entity) {
-    //     auto it = remove_if(entities.begin(), entities.end(), [](const unique_ptr<Entity>& e)
-    //     {
-    //         return e.get() == entity; // so sánh địa chỉ của entity cần tìm với địa chỉ của các entity trong vector entities nếu trùng nhau thì trả về true và gán cho it       
-    //     });
-
-    //     if (it != entities.end()) {
-    //         entities.erase(it, entities.end()); 
-    //     }
-    // }
 };
 
 #endif
