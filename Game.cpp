@@ -295,6 +295,7 @@ void Game::update(){
             player.getComponent<TransformComponent>().velocity.Zero();
             assets->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
+            UIwriteName = true;
         }
     }
 

@@ -1,7 +1,7 @@
 #ifndef SCORESYSTEM_H
 #define SCORESYSTEM_H
 
-#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL.h"
+#include <SDL2/SDL.h>
 #include <string>
 #include <fstream>
 #include <vector>

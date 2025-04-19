@@ -5,8 +5,9 @@
 #include "Vector2D.h"
 #include <string>
 #include <map>
-#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL_mixer.h"
-#include "C:\Users\ADMIN\OneDrive\Desktop\git_exercise\src\include\SDL2\SDL_ttf.h"
+#include <SDL2/SDL.h>
+#include <SDL2/SDL_mixer.h>
+#include <SDL2/SDL_ttf.h>
 
 using namespace std;
 

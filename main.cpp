@@ -31,5 +31,8 @@ int main(int argc, char* argv[]){
     }
 
     game->quit();
+    delete game;
+    game = NULL;
+
     return 0;
 }
