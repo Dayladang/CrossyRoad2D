@@ -31,6 +31,7 @@ public:
     void saveHighScore();
     void loadHighScore();
     string getScoreText();
+    int getScore();
 
     void updateScore(int currentPlayerY);
 
@@ -49,9 +50,7 @@ private:
 public :
     vector<Player> v;
 
-    void addPlayer(const string& name, int score);
-
-    string addPLayerName();
+    void addPlayerToFile(const string& name, int score);
 
     void render();
 };

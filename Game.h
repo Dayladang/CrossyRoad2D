@@ -6,7 +6,8 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
-#include "AssetManager.h" 
+#include "AssetManager.h"
+#include "ScoreSystem.h"
 
 using namespace std;
 
@@ -43,6 +44,12 @@ public:
     static bool UIwriteName;
     static bool exitGameloseUp;
     static bool exitGameloseDown;
+    static string playerName;
+    static bool isTypingName;
+    static bool showLeaderBoard;
+    static ScoreSystem* scoreSystem; 
+    static LeaderBoard* leaderBoard;
+    static int currentScore;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

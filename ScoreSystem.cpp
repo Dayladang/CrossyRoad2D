@@ -2,6 +2,7 @@
 #include "ECS/MiniText.h"
 #include <iostream>
 #include <sstream>
+#include "Game.h"
 
 using namespace std;
 
@@ -47,6 +48,10 @@ string ScoreSystem::getScoreText() {
     return ss.str();
 }
 
+int ScoreSystem::getScore() {
+    return score;
+}
+
 void ScoreSystem::updateScore(int currentPlayerY) {
     
     int currentRow = currentPlayerY / tileSize;// Chuyển đổi vị trí Y thành chỉ số hàng
@@ -70,44 +75,22 @@ void ScoreSystem::updateScore(int currentPlayerY) {
     }
 }
 
-void LeaderBoard::addPlayer(const string& name, int score){
-    v.push_back({name, score});
+void LeaderBoard::addPlayerToFile(const string& name, int score){
+    v.push_back( {name, score} );
+
     sort(v.begin(), v.end(), [](const Player a, const Player b) {
         if (a.points == b.points) return a.name > b.name;
         else return a.points > b.points;
     });
+
     if (v.size() > 10) v.resize(10); // Giới hạn top 10
 
     //truyền tên và điểm vào file
-    fstream file("assets/score/highscore.txt", ios::out);
+    fstream file("assets/score/leaderboard.txt", ios::out);
     if (file.is_open()) {
         for (auto& x : v) file << x.name << " " << x.points << endl;
         file.close();
     } 
-}
-
-string LeaderBoard::addPLayerName() {
-    bool getName = true;
-    SDL_StartTextInput();
-    SDL_Event e;
-    while (getName) {
-        while (SDL_PollEvent(&e)) {
-            const Uint8* input = SDL_GetKeyboardState(NULL);
-            
-            if (input[SDL_TEXTINPUT]) {
-                playerName += e.text.text;
-            }
-            if (input[SDL_SCANCODE_RETURN]) { // return là phím enter
-                getName = false;
-            }
-        }
-
-        // MiniText* txt;
-        // txt->SetLabelText(playerName, "font");
-    }
-    SDL_StopTextInput();
-
-    return playerName;
 }
 
 void LeaderBoard::render(){

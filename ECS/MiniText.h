@@ -39,8 +39,8 @@ public:
     void drawWithBackground(int x, int y, int w, int h, SDL_Texture* bgTexture) { // vẽ text cho màn hình thua
         
         SDL_Rect dstRect = {x, y, w, h};
-        position.x = w / 2;
-        position.y = h / 2;
+        position.x = x + (w - position.w) / 2;
+        position.y = y + (h - position.h) / 2;
         
         SDL_RenderCopy(Game::renderer, bgTexture, NULL, &dstRect);
     

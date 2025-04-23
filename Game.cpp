@@ -21,7 +21,9 @@ SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 //màu chữ
 SDL_Color black = {0, 0, 0, 255};
 SDL_Color white = {255, 255, 255, 255};
-ScoreSystem* scoreSystem = new ScoreSystem(); // 27
+ScoreSystem* Game::scoreSystem = new ScoreSystem(); // 27
+LeaderBoard* Game::leaderBoard = new LeaderBoard(); // 34
+int Game::currentScore = 0;// 33
 
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
@@ -37,15 +39,19 @@ bool Game::isLogoActive = true; // 31
 bool Game::exitGameloseUp = false; // 32
 bool Game::exitGameloseDown = false; // 32
 
+string Game::playerName = ""; // 34
+bool Game::isTypingName = false; // 34
+bool Game::showLeaderBoard = false;// 34
+
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
 bool Game::isRunning = false;// 17
  
 Entity& player = manager.addEntity();//6
-Entity& label = manager.addEntity(); //25
+Entity& scoreBoard = manager.addEntity(); //25
 Entity& logo = manager.addEntity(); //28
-Entity& writeName = manager.addEntity(); //30
-// vector<Entity*> cars;
+Entity& writeScore = manager.addEntity(); //30
+Entity* writeName = &manager.addEntity(); // 34
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
@@ -94,6 +100,9 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
         isRunning = false;
     }
 
+    if (isTypingName) SDL_StartTextInput(); // bắt đầu nhập văn bản từ bàn phím
+    else SDL_StopTextInput(); 
+
     isRunning = true;
       
     //thêm texture cho map
@@ -126,8 +135,10 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadSound("crashsound", "assets/sound/chicken_crashsound.mp3");
 
     //thêm font chữ
-    assets->loadFont("font", "assets/fonts/vgafix.fon", 30);
-    label.addComponent<MiniText>(10, 10, "", "font", black);
+    assets->loadFont("font", "assets/fonts/pixelfont.ttf", 15);
+    assets->loadFont("gameover_font", "assets/fonts/pixelfont.ttf", 40);
+    assets->loadFont("Type_name", "assets/fonts/pixelfont.ttf", 10);
+    scoreBoard.addComponent<MiniText>(10, 10, "", "font", black);
 
     //thêm logo và nút chơi
     assets->AddTexture("logo", "assets/images/logo.png");
@@ -140,9 +151,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     playButton->addComponent<TransformComponent>(460, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
 
- 
-
-    writeName.addComponent<MiniText>(256, 256,"Your name is : ", "font", white);
+    
+    writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -248,23 +258,9 @@ void Game::update(){
     if (screen.x > screen.w) screen.x = screen.w;
     if (screen.y > screen.h) screen.y = screen.h;
 
-    // // Cập nhật vị trí của toa đầu tiên
-    // cars[0]->getComponent<TransformComponent>().position.x += cars[0]->getComponent<TransformComponent>().velocity.x;
-    // cars[0]->getComponent<TransformComponent>().position.y += cars[0]->getComponent<TransformComponent>().velocity.y;
-
-    // // Cập nhật vị trí các toa sau nối đuôi toa trước
-    // for (size_t i = 1; i < cars.size(); ++i) {
-    //     TransformComponent& prevTransform = cars[i - 1]->getComponent<TransformComponent>();
-    //     TransformComponent& currTransform = cars[i]->getComponent<TransformComponent>();
-
-    // // Di chuyển toa hiện tại theo toa trước
-    // currTransform.position.x = prevTransform.position.x - prevTransform.width - 100;
-    // currTransform.position.y = prevTransform.position.y;
-    // }
-
     //ghi điểm số 
     scoreSystem->updateScore(player.getComponent<TransformComponent>().position.y);
-    label.getComponent<MiniText>().SetLabelText(scoreSystem->getScoreText(), "font");
+    scoreBoard.getComponent<MiniText>().SetLabelText(scoreSystem->getScoreText(), "font");
 
     // bắt sự kiện va chạm
     for(auto& v : vehicles){
@@ -286,6 +282,8 @@ void Game::update(){
             player.getComponent<TransformComponent>().position = {512, 970};
             UIwriteName = true;
             isSquashed = false;
+            currentScore = scoreSystem->getScore();
+            isTypingName = true;
         }
         return; // Không xử lý logic khác khi đang ở trạng thái "bị bẹp"
     }
@@ -296,6 +294,8 @@ void Game::update(){
             assets->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
             UIwriteName = true;
+            currentScore = scoreSystem->getScore();
+            isTypingName = true;
         }
     }
 
@@ -315,14 +315,13 @@ void Game::render(){
     SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5
 
     for (auto& t : tiles) t->draw();
-    //for (auto& car : cars) car->draw();
     //for (auto& c : colliders) c->draw();
 
     for (auto& v : vehicles) v->draw();
     for (auto& d : dangers) d->draw();
     for (auto& p : players) p->draw(); 
     
-    if (playButtonClickedUp) label.draw(); // Score text
+    if (playButtonClickedUp) scoreBoard.draw(); // Score text
     
     if (isLogoActive) {
         logo.draw();
@@ -342,7 +341,6 @@ void Game::render(){
 
     if (UIwriteName && !exitGameloseUp) {
 
-
         SDL_Texture* tmp = assets->GetTexture("losing_screen");
         if (exitGameloseDown) {
             tmp = assets->GetTexture("losing_screen_clicked");
@@ -353,7 +351,16 @@ void Game::render(){
         dstRect.x = (WIDTH - imgW) / 2;
         dstRect.y = (HEIGHT - imgH) / 2;
 
-        writeName.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
+        writeScore.getComponent<MiniText>().SetLabelText(to_string(currentScore), "gameover_font");
+        writeScore.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
+
+        stringstream ss;
+        ss << "Enter your name: " << endl << playerName + "_";
+        SDL_Rect dstRect2 = {dstRect.x + 30, dstRect.y + 300, 0, 0};
+        writeName->addComponent<MiniText>(dstRect2.x, dstRect2.y, ss.str(), "Type_name", white); 
+        SDL_RenderCopy(renderer, tmp, NULL, &dstRect2);
+        writeName->draw();
+        
     }
 
     SDL_RenderPresent(renderer);
@@ -365,6 +372,8 @@ void Game::resetGame() {
     playButtonClickedUp = false;
     exitGameloseUp = false;
     isLogoActive = true;
+    isTypingName = false;
+    playerName = ""; // reset tên người chơi
  
     // reset vị trí của logo
     logoPositionX = 420;

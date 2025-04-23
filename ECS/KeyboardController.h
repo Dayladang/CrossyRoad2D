@@ -4,6 +4,7 @@
 #include "../Game.h"
 #include "ECS.h"
 #include "Components.h"
+#include "../ScoreSystem.h"
 
 class KeyboardController : public Component {
 
@@ -27,38 +28,55 @@ public :
 
             else if ( Game::event.type == SDL_KEYDOWN ){
 
-                const Uint8* check = SDL_GetKeyboardState(NULL);
+                if (Game::UIwriteName) {
 
-                if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false; // bấm esc để thoát game
+                    const Uint8* check = SDL_GetKeyboardState(NULL);
 
-                if (!Game::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
+                    if (check[SDL_SCANCODE_BACKSPACE] && Game::UIwriteName && !Game::playerName.empty()) {
+                        Game::playerName.pop_back(); // xóa kí tự cuối cùng trong tên nếu ấn phím backspace
+                    }
+                    if (check[SDL_SCANCODE_RETURN] && !Game::playerName.empty()) {
+                        Game::leaderBoard->addPlayerToFile(Game::playerName, Game::currentScore);
+                        cout << "name typed: " << Game::playerName << endl;
+                        Game::resetGame(); // nhập tên xong thì reset
+                    }
+                    if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false;
+                }
+                else {
+                    const Uint8* check = SDL_GetKeyboardState(NULL);
 
-                if (check[SDL_SCANCODE_W]) {
-                    if (Game::UIwriteName) return; // nếu đang ở màn hình thua thì không được di chuyển, vì vẫn phải bắt nút esc nên phải làm thế này
-                    transform->velocity.y = -1;
-                    sprite->Play("Backwalk");
-                    Game::assets->playSound("chickensound", 0);
+                    if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false; // bấm esc để thoát game
+
+                    if (!Game::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
+
+                    if (check[SDL_SCANCODE_W]) {
+                        //if (Game::UIwriteName) return; // nếu đang ở màn hình thua thì không được di chuyển, vì vẫn phải bắt nút esc nên phải làm thế này
+                        transform->velocity.y = -1;
+                        sprite->Play("Backwalk");
+                        Game::assets->playSound("chickensound", 0);
+                    }
+                    if (check[SDL_SCANCODE_S]) {
+                        //if (Game::UIwriteName) return;
+                        transform->velocity.y = 1;
+                        sprite->Play("Frontwalk");
+                        Game::assets->playSound("chickensound", 0);
+                    }
+                    if (check[SDL_SCANCODE_D]) {
+                        //if (Game::UIwriteName) return;
+                        transform->velocity.x = 1;
+                        sprite->Play("Rightwalk");
+                        Game::assets->playSound("chickensound", 0);
+                    } 
+                    if (check[SDL_SCANCODE_A]) {
+                        //if (Game::UIwriteName) return;
+                        transform->velocity.x = -1;
+                        sprite->Play("Leftwalk");
+                        Game::assets->playSound("chickensound", 0);
+                    }
+                    if (check[SDL_SCANCODE_RSHIFT]) {
+                        transform->speed = 3;
+                    }
                 }
-                if (check[SDL_SCANCODE_S]) {
-                    if (Game::UIwriteName) return;
-                    transform->velocity.y = 1;
-                    sprite->Play("Frontwalk");
-                    Game::assets->playSound("chickensound", 0);
-                }
-                if (check[SDL_SCANCODE_D]) {
-                    if (Game::UIwriteName) return;
-                    transform->velocity.x = 1;
-                    sprite->Play("Rightwalk");
-                    Game::assets->playSound("chickensound", 0);
-                } 
-                if (check[SDL_SCANCODE_A]) {
-                    if (Game::UIwriteName) return;
-                    transform->velocity.x = -1;
-                    sprite->Play("Leftwalk");
-                    Game::assets->playSound("chickensound", 0);
-                }
-                if (check[SDL_SCANCODE_RSHIFT]) transform->speed = 3;
-        
             }
 
             else if ( Game::event.type == SDL_KEYUP ){
@@ -132,7 +150,15 @@ public :
                         }
                     }
                 }        
-                
+            }
+
+            if (Game::event.type == SDL_TEXTINPUT) {
+                if (Game::UIwriteName && !Game::exitGameloseUp) {
+                    if (Game::playerName.length() < 10) { // giới hạn tên người chơi tối đa 10 kí tụ
+                        Game::playerName += Game::event.text.text; // event.text.text là kí tự vừa nhập vào
+                    }
+
+                }
             }
         }
 
