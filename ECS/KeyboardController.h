@@ -156,7 +156,7 @@ public :
                     if (c == ' ' && Game::playerName.size() < 20) {
                         Game::playerName += '_'; // thay space bằng "_"
                     }
-                    else if (c != '\0' && Game::playerName.size() < 10) {
+                    else if (c != '\0' && Game::playerName.size() < 20) {
                         Game::playerName += c; // ký tự khác giữ nguyên
                     }
                 }

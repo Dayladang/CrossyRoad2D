@@ -47,6 +47,19 @@ public:
         SDL_RenderCopy(Game::renderer, labelTexture, NULL, &position);
     }
 
+    int getWidth() {
+        return position.w;
+    }
+
+    int getHeight() {
+        return position.h;
+    }
+
+    void setPosition(int x, int y) {
+        position.x = x;
+        position.y = y;
+    }
+
 private:
     SDL_Texture* labelTexture;
     SDL_Rect position;
