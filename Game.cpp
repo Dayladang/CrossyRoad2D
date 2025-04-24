@@ -31,7 +31,7 @@ Uint32 squashStartTime = 0; // 25
 bool Game::playButtonClickedUp = false; // 28
 bool Game::playButtonClickedDown = false; //32
 Entity* Game::playButton = NULL;// 28
-int logoPositionX = 420;// 29
+int logoPositionX = (1024 - 200) / 2 ; //29
 
 bool Game::UIwriteName = false;// 30
 bool Game::isLogoActive = true; // 31
@@ -51,7 +51,8 @@ Entity& player = manager.addEntity();//6
 Entity& scoreBoard = manager.addEntity(); //25
 Entity& logo = manager.addEntity(); //28
 Entity& writeScore = manager.addEntity(); //30
-Entity* writeName = &manager.addEntity(); // 34
+Entity& writeName = manager.addEntity(); // 34
+Entity& writeName2 = manager.addEntity(); // 36
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
@@ -145,11 +146,12 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->AddTexture("play_button", "assets/images/Play_Button.png");
     assets->AddTexture("play_button_clicked", "assets/images/PLay_Button_Clicked.png");
     playButton = &manager.addEntity(); //28
-    playButton->addComponent<TransformComponent>(460, 970, 100, 41, 1, 0, 0); 
+    playButton->addComponent<TransformComponent>((1024 - 100) / 2, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
 
-    
     writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
+    writeName.addComponent<MiniText>(0, 0, "", "Type_name", white);
+    writeName2.addComponent<MiniText>(0, 0, "", "Type_name", white);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -298,15 +300,9 @@ void Game::update(){
         }
     }
 
-    // if (UIwriteName) {
-    //     for (auto& v : vehicles) {
-    //         v->getComponent<TransformComponent>().velocity.Zero();
-    //     }
-    // }
-
     // cout << "chicken position: (" 
     // << player.getComponent<TransformComponent>().position.x << ", " 
-    // << player.getComponent<TransformComponent>().position.y << ")" << std::endl;
+    // << player.getComponent<TransformComponent>().position.y << ")" << endl;
 
 }
 
@@ -346,18 +342,22 @@ void Game::render(){
         }
         
         int imgW = 300, imgH = 325;
-        SDL_Rect dstRect;
-        dstRect.x = (WIDTH - imgW) / 2;
-        dstRect.y = (HEIGHT - imgH) / 2;
+        SDL_Rect dstRect = {(WIDTH - imgW) / 2, (HEIGHT - imgH) / 2, imgW, imgH};
 
         writeScore.getComponent<MiniText>().SetLabelText(to_string(currentScore), "gameover_font");
         writeScore.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
 
         //cập nhật tên gõ vào
-        writeName->addComponent<MiniText>(dstRect.x + 20, dstRect.y + 200, "", "Type_name", white);
-        writeName->getComponent<MiniText>().SetLabelText("Enter name: " + playerName + "_", "Type_name");   
-        writeName->getComponent<MiniText>().draw();
+        auto& wN = writeName.getComponent<MiniText>();
+        wN.SetLabelText("Enter your name:", "Type_name");   
+        wN.setPosition(dstRect.x + (dstRect.w - wN.getWidth()) / 2, dstRect.y + 230); // căn giữa 
+        wN.draw();
         
+        auto& wN2 = writeName2.getComponent<MiniText>();
+        wN2.SetLabelText(playerName + "_", "Type_name");   
+        wN2.setPosition(dstRect.x + (dstRect.w - wN2.getWidth()) / 2, dstRect.y + 250);
+        wN2.draw();
+
     }
 
     SDL_RenderPresent(renderer);
@@ -375,7 +375,7 @@ void Game::resetGame() {
     leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt
  
     // reset vị trí của logo
-    logoPositionX = 420;
+    logoPositionX = (1024 - 200) / 2;
     if (logo.hasComponent<TransformComponent>()) {
         logo.getComponent<TransformComponent>().position.x = logoPositionX;
         logo.getComponent<TransformComponent>().position.y = 700;
