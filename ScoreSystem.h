@@ -28,8 +28,8 @@ public:
 
     void addScore(int points);
     void resetScore();
-    void saveHighScore();
-    void loadHighScore();
+    // void saveHighScore();
+    // void loadHighScore();
     string getScoreText();
     int getScore();
 
@@ -40,19 +40,21 @@ public:
 
 struct Player {
     string name;
-    int points;
+    int scores;
 };
 
 class LeaderBoard {
 
 private:
-    string playerName;
-public :
     vector<Player> v;
-
-    void addPlayerToFile(const string& name, int score);
-
+public :
+    
+    void addPlayer(const string& name, int score);
+    void loadFromFile();
+    void saveToFile();
+    int GetTopScore();
     void render();
+
 };
 
 #endif

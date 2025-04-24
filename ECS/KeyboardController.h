@@ -36,8 +36,8 @@ public :
                         Game::playerName.pop_back(); // xóa kí tự cuối cùng trong tên nếu ấn phím backspace
                     }
                     if (check[SDL_SCANCODE_RETURN] && !Game::playerName.empty()) {
-                        Game::leaderBoard->addPlayerToFile(Game::playerName, Game::currentScore);
-                        cout << "name typed: " << Game::playerName << endl;
+                        Game::leaderBoard->addPlayer(Game::playerName, Game::currentScore);
+                        Game::leaderBoard->saveToFile(); // luu lai du lieu vao file leaderboard.txt
                         Game::resetGame(); // nhập tên xong thì reset
                     }
                     if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false;
@@ -50,25 +50,21 @@ public :
                     if (!Game::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
 
                     if (check[SDL_SCANCODE_W]) {
-                        //if (Game::UIwriteName) return; // nếu đang ở màn hình thua thì không được di chuyển, vì vẫn phải bắt nút esc nên phải làm thế này
                         transform->velocity.y = -1;
                         sprite->Play("Backwalk");
                         Game::assets->playSound("chickensound", 0);
                     }
                     if (check[SDL_SCANCODE_S]) {
-                        //if (Game::UIwriteName) return;
                         transform->velocity.y = 1;
                         sprite->Play("Frontwalk");
                         Game::assets->playSound("chickensound", 0);
                     }
                     if (check[SDL_SCANCODE_D]) {
-                        //if (Game::UIwriteName) return;
                         transform->velocity.x = 1;
                         sprite->Play("Rightwalk");
                         Game::assets->playSound("chickensound", 0);
                     } 
                     if (check[SDL_SCANCODE_A]) {
-                        //if (Game::UIwriteName) return;
                         transform->velocity.x = -1;
                         sprite->Play("Leftwalk");
                         Game::assets->playSound("chickensound", 0);
@@ -154,10 +150,15 @@ public :
 
             if (Game::event.type == SDL_TEXTINPUT) {
                 if (Game::UIwriteName && !Game::exitGameloseUp) {
-                    if (Game::playerName.length() < 10) { // giới hạn tên người chơi tối đa 10 kí tụ
-                        Game::playerName += Game::event.text.text; // event.text.text là kí tự vừa nhập vào
-                    }
 
+                    char c = Game::event.text.text[0]; //lấy kí tự vừa nhập vào
+
+                    if (c == ' ' && Game::playerName.size() < 20) {
+                        Game::playerName += '_'; // thay space bằng "_"
+                    }
+                    else if (c != '\0' && Game::playerName.size() < 10) {
+                        Game::playerName += c; // ký tự khác giữ nguyên
+                    }
                 }
             }
         }

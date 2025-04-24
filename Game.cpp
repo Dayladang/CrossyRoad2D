@@ -21,8 +21,8 @@ SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 //màu chữ
 SDL_Color black = {0, 0, 0, 255};
 SDL_Color white = {255, 255, 255, 255};
-ScoreSystem* Game::scoreSystem = new ScoreSystem(); // 27
 LeaderBoard* Game::leaderBoard = new LeaderBoard(); // 34
+ScoreSystem* Game::scoreSystem = new ScoreSystem(); // 27
 int Game::currentScore = 0;// 33
 
 bool Game::isSquashed = false; //26
@@ -99,9 +99,6 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     if (!assets->initTTF()){
         isRunning = false;
     }
-
-    if (isTypingName) SDL_StartTextInput(); // bắt đầu nhập văn bản từ bàn phím
-    else SDL_StopTextInput(); 
 
     isRunning = true;
       
@@ -284,6 +281,7 @@ void Game::update(){
             isSquashed = false;
             currentScore = scoreSystem->getScore();
             isTypingName = true;
+            SDL_StartTextInput(); 
         }
         return; // Không xử lý logic khác khi đang ở trạng thái "bị bẹp"
     }
@@ -296,6 +294,7 @@ void Game::update(){
             UIwriteName = true;
             currentScore = scoreSystem->getScore();
             isTypingName = true;
+            SDL_StartTextInput();
         }
     }
 
@@ -354,12 +353,10 @@ void Game::render(){
         writeScore.getComponent<MiniText>().SetLabelText(to_string(currentScore), "gameover_font");
         writeScore.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
 
-        stringstream ss;
-        ss << "Enter your name: " << endl << playerName + "_";
-        SDL_Rect dstRect2 = {dstRect.x + 30, dstRect.y + 300, 0, 0};
-        writeName->addComponent<MiniText>(dstRect2.x, dstRect2.y, ss.str(), "Type_name", white); 
-        SDL_RenderCopy(renderer, tmp, NULL, &dstRect2);
-        writeName->draw();
+        //cập nhật tên gõ vào
+        writeName->addComponent<MiniText>(dstRect.x + 20, dstRect.y + 200, "", "Type_name", white);
+        writeName->getComponent<MiniText>().SetLabelText("Enter name: " + playerName + "_", "Type_name");   
+        writeName->getComponent<MiniText>().draw();
         
     }
 
@@ -374,6 +371,8 @@ void Game::resetGame() {
     isLogoActive = true;
     isTypingName = false;
     playerName = ""; // reset tên người chơi
+    SDL_StopTextInput(); // dừng nhập tên
+    leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt
  
     // reset vị trí của logo
     logoPositionX = 420;
@@ -389,9 +388,6 @@ void Game::resetGame() {
 }
 
 void Game::quit(){
-    if (scoreSystem){
-        scoreSystem->saveHighScore();
-    }
     assets->quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
