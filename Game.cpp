@@ -33,15 +33,20 @@ bool Game::playButtonClickedDown = false; //32
 Entity* Game::playButton = NULL;// 28
 int logoPositionX = (1024 - 200) / 2 ; //29
 
-bool Game::UIwriteName = false;// 30
 bool Game::isLogoActive = true; // 31
 
 bool Game::exitGameloseUp = false; // 32
 bool Game::exitGameloseDown = false; // 32
 
+bool Game::UIwriteName = false;// 30
 string Game::playerName = ""; // 34
 bool Game::isTypingName = false; // 34
-bool Game::showLeaderBoard = false;// 34
+
+bool Game::LeaderBoardButtonUp = false;// 37
+bool Game::LeaderBoardButtonDown = false; // 37
+bool Game::exitLeaderBoardUp = false;// 34
+bool Game::exitLeaderBoardDown = false; // 37
+Entity* Game::LeaderBoardButton = NULL; // 37
 
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
@@ -53,6 +58,7 @@ Entity& logo = manager.addEntity(); //28
 Entity& writeScore = manager.addEntity(); //30
 Entity& writeName = manager.addEntity(); // 34
 Entity& writeName2 = manager.addEntity(); // 36
+Entity& writeLeaderBoard = manager.addEntity(); // 37
 
 vector<Entity*>& tiles = manager.getGroup(Game::groupMap); // tiles là một vector các entity trong nhóm groupMap
 vector<Entity*>& players = manager.getGroup(Game::groupPlayer);
@@ -123,9 +129,12 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->AddTexture("SUV", "assets/images/SUV.png");
     assets->AddTexture("wagon", "assets/images/wagon.png");
 
-    //thêm màn hình điểm khi thua
+    //thêm màn hình điểm khi thua và leaderboard
     assets->AddTexture("losing_screen", "assets/images/losing_screen.png");
     assets->AddTexture("losing_screen_clicked", "assets/images/losing_screen_clicked.png");
+
+    assets->AddTexture("leaderboard", "assets/images/leaderboard.png");
+    assets->AddTexture("leaderboard_clicked", "assets/images/leaderboard_clicked.png");
 
     //thêm âm thanh
     assets->loadMusic("thememusic", "assets/sound/thememusic.mp3");
@@ -138,7 +147,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadFont("Type_name", "assets/fonts/pixelfont.ttf", 10);
     scoreBoard.addComponent<MiniText>(10, 10, "", "font", black);
 
-    //thêm logo và nút chơi
+    //thêm logo và nút chơi, nút leaderboard
     assets->AddTexture("logo", "assets/images/logo.png");
     logo.addComponent<TransformComponent>(logoPositionX, 700, 200, 92, 1, 0, 0);
     logo.addComponent<SpriteComponent>("logo");
@@ -149,9 +158,17 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     playButton->addComponent<TransformComponent>((1024 - 100) / 2, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
 
+    assets->AddTexture("leaderboard_button", "assets/images/leaderboard_button.png");
+    assets->AddTexture("leaderboard_button_clicked", "assets/images/leaderboard_button_clicked.png");
+    LeaderBoardButton = &manager.addEntity();
+    LeaderBoardButton->addComponent<TransformComponent>((1024 - 50) / 2 - 100, 970, 50, 41, 1, 0, 0);
+    LeaderBoardButton->addComponent<SpriteComponent>("leaderboard_button"); 
+
+    //các khung viết chữ
     writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
     writeName.addComponent<MiniText>(0, 0, "", "Type_name", white);
     writeName2.addComponent<MiniText>(0, 0, "", "Type_name", white);
+    writeLeaderBoard.addComponent<MiniText>(0, 0, "", "Type_name", white);
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -323,15 +340,24 @@ void Game::render(){
     }
     
     // vẽ button khi chưa thả nút ra  
-    if (!playButtonClickedUp) {
+    if (!playButtonClickedUp && !LeaderBoardButtonUp) {
+        //vẽ nút play
         if (playButtonClickedDown) { // nếu nút được bấm
             playButton->getComponent<SpriteComponent>().setTex("play_button_clicked");
-            playButton->draw();
         }
         else { // nút khi chưa được bấm
-            playButton->getComponent<SpriteComponent>().setTex("play_button");
-            playButton->draw();
+            playButton->getComponent<SpriteComponent>().setTex("play_button");         
         }
+        playButton->draw();
+
+        //vẽ nút leaderboard
+        if (LeaderBoardButtonDown) {
+            LeaderBoardButton->getComponent<SpriteComponent>().setTex("leaderboard_button_clicked");
+        }
+        else {
+            LeaderBoardButton->getComponent<SpriteComponent>().setTex("leaderboard_button");           
+        }
+        LeaderBoardButton->draw();
     }
 
     if (UIwriteName && !exitGameloseUp) {
@@ -360,6 +386,29 @@ void Game::render(){
 
     }
 
+    if (LeaderBoardButtonUp && !exitLeaderBoardUp) {
+        SDL_Texture* tmp = assets->GetTexture("leaderboard");
+        if (exitLeaderBoardDown) {
+            tmp = assets->GetTexture("leaderboard_clicked");
+        }
+
+        int imgW = 300, imgH = 325;
+        SDL_Rect dstRect = {(WIDTH - imgW) / 2, (HEIGHT - imgH) / 2, imgW, imgH};
+
+        SDL_RenderCopy(renderer, tmp, NULL, &dstRect); // vẽ UI cho danh sách điểm
+        auto& wL = writeLeaderBoard.getComponent<MiniText>();
+
+        vector<Player> p = leaderBoard->getPlayers();
+        int y = dstRect.y + 50;
+        for (size_t i = 0; i < p.size(); ++i) {
+            wL.SetLabelText(p[i].name + ": " + to_string(p[i].scores), "Type_name");
+            wL.setPosition(dstRect.x + (dstRect.w - wL.getWidth()) / 2, y);
+            wL.draw();
+            y += 20;
+        }
+
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -372,7 +421,9 @@ void Game::resetGame() {
     isTypingName = false;
     playerName = ""; // reset tên người chơi
     SDL_StopTextInput(); // dừng nhập tên
-    leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt
+    leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt 
+    LeaderBoardButtonUp = false;
+    exitLeaderBoardUp = false;
  
     // reset vị trí của logo
     logoPositionX = (1024 - 200) / 2;
@@ -391,7 +442,6 @@ void Game::quit(){
     assets->quit();
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
-    IMG_Quit();
     SDL_Quit();
     cout << "quit game";
 }

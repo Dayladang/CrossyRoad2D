@@ -33,22 +33,34 @@ public:
 
     static SDL_Renderer* renderer; // renderer tổng, sẽ tồn tại đến khi chương trình két thúc //5 luon
     static SDL_Event event;
+
     static bool isRunning;
+
     static bool isSquashed;
+
     static SDL_Rect screen;
     static AssetManager* assets;
+
     static bool playButtonClickedUp;
     static bool playButtonClickedDown;
     static Entity* playButton; //28
+
     static bool isLogoActive;
+
     static bool UIwriteName;
     static bool exitGameloseUp;
     static bool exitGameloseDown;
     static string playerName;
     static bool isTypingName;
-    static bool showLeaderBoard;
-    static ScoreSystem* scoreSystem; 
+
     static LeaderBoard* leaderBoard;
+    static bool LeaderBoardButtonUp;
+    static bool LeaderBoardButtonDown;
+    static bool exitLeaderBoardUp;
+    static bool exitLeaderBoardDown;
+    static Entity* LeaderBoardButton;
+
+    static ScoreSystem* scoreSystem; 
     static int currentScore;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group

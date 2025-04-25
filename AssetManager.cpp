@@ -93,4 +93,9 @@ void AssetManager::quit(){
     }
     TTF_Quit();
 
+    //quit image
+    for(auto& t : textures) {
+        SDL_DestroyTexture(t.second);
+    }
+    IMG_Quit();
 }

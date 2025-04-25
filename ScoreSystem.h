@@ -47,13 +47,16 @@ class LeaderBoard {
 
 private:
     vector<Player> v;
+
 public :
     
     void addPlayer(const string& name, int score);
     void loadFromFile();
     void saveToFile();
     int GetTopScore();
-    void render();
+    vector<Player> getPlayers() {
+        return v;
+    }
 
 };
 

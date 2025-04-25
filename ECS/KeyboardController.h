@@ -98,18 +98,39 @@ public :
 
                     //cout << mouseX << " " << mouseY << endl;
 
-                    if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
-                    mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
-                    mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
-                    mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
+                    if (!Game::LeaderBoardButtonUp) {
+                        if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
 
-                        Game::playButtonClickedDown = true;
+                            Game::playButtonClickedDown = true;
 
+                        }
                     }
 
                     if (Game::UIwriteName) { // khi màn hình thua mở ra 
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát màn hình thua
                             Game::exitGameloseDown = true;
+                        }
+                    }
+
+                    if (Game::LeaderBoardButtonUp) {
+                        if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
+                            
+                            Game::exitLeaderBoardDown = true;
+
+                        }
+                    }
+
+                    if (!Game::LeaderBoardButtonUp) {
+                        if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
+
+                            Game::LeaderBoardButtonDown = true;
+
                         }
                     }
                 }        
@@ -126,14 +147,16 @@ public :
 
                     //cout << mouseX << " " << mouseY << endl;
 
-                    if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
-                    mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
-                    mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
-                    mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
+                    if (!Game::LeaderBoardButtonUp) {
+                        if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
 
-                        Game::playButtonClickedDown = false;
-                        Game::playButtonClickedUp = true; // that nút ra thì bắt đầu game
+                            Game::playButtonClickedDown = false;
+                            Game::playButtonClickedUp = true; // that nút ra thì bắt đầu game
 
+                        }
                     }
 
                     if (Game::UIwriteName) { // khi màn hình thua mở ra 
@@ -142,6 +165,31 @@ public :
                             Game::exitGameloseDown = false;
                             Game::exitGameloseUp = true;
                             Game::resetGame(); // reset game khi thả nút thoát màn hình thua
+
+                        }
+                    }
+
+                    if (Game::LeaderBoardButtonUp) {
+                        if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
+                            
+                            Game::exitLeaderBoardDown = false;
+                            Game::exitLeaderBoardUp = true;
+
+                            Game::playButtonClickedUp = false; //reset lại trạng thái nút chơi chưa được bấm
+                            Game::LeaderBoardButtonUp = false; 
+                            Game::exitLeaderBoardUp = false; // reset lại trạng thái nút hiện leaderboard chưa được bấm
+
+                        }
+                    }
+
+                    if (!Game::playButtonClickedUp) {
+                        if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
+
+                            Game::LeaderBoardButtonDown = false;
+                            Game::LeaderBoardButtonUp = true;
 
                         }
                     }

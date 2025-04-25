@@ -98,7 +98,3 @@ void LeaderBoard::saveToFile() {
 int LeaderBoard::GetTopScore() {
     return v.empty() ? 0 : v[0].scores;
 }
-
-void LeaderBoard::render(){
-
-}
