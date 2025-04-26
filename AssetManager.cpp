@@ -51,6 +51,12 @@ void AssetManager::pauseMusic(){
     }
 }
 
+void AssetManager::resumeMusic() {
+    if (Mix_PausedMusic()) {
+        Mix_ResumeMusic();
+    }
+}
+
 void AssetManager::stopSound(string id){
     Mix_HaltChannel(-1);
 }

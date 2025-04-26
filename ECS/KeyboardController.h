@@ -28,7 +28,7 @@ public :
 
             else if ( Game::event.type == SDL_KEYDOWN ){
 
-                if (Game::UIwriteName) {
+                if (Game::UIwriteName || Game::isPausedUp) {
 
                     const Uint8* check = SDL_GetKeyboardState(NULL);
 
@@ -96,7 +96,7 @@ public :
                     int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
                     int mouseY = ngumouseY + Game::screen.y;
 
-                    //cout << mouseX << " " << mouseY << endl;
+                    cout << mouseX << " " << mouseY << endl;
 
                     if (!Game::LeaderBoardButtonUp) {
                         if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
@@ -133,6 +133,29 @@ public :
 
                         }
                     }
+
+                    if (Game::playButtonClickedUp) {
+                        if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
+
+                            Game::isPausedDown = true;
+
+                        }
+                    }
+
+                    // if (Game::isPausedUp) {
+                    //     if (mouseX >= Game::PauseScreen->getComponent<TransformComponent>().position.x &&
+                    //     mouseX <= Game::PauseScreen->getComponent<TransformComponent>().position.x + Game::PauseScreen->getComponent<TransformComponent>().width &&
+                    //     mouseY >= Game::PauseScreen->getComponent<TransformComponent>().position.y &&
+                    //     mouseY <= Game::PauseScreen->getComponent<TransformComponent>().position.y + Game::PauseScreen->getComponent<TransformComponent>().height) {
+
+                    //         Game::isPausedUp = false;
+                    //         //Game::exitPauseScreen = true;
+
+                    //     }
+                    // }
                 }        
                 
             }
@@ -190,6 +213,18 @@ public :
 
                             Game::LeaderBoardButtonDown = false;
                             Game::LeaderBoardButtonUp = true;
+
+                        }
+                    }
+
+                    if (Game::playButtonClickedUp) {
+                        if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
+
+                            Game::isPausedDown = false;
+                            Game::isPausedUp = true;
 
                         }
                     }

@@ -48,6 +48,11 @@ bool Game::exitLeaderBoardUp = false;// 34
 bool Game::exitLeaderBoardDown = false; // 37
 Entity* Game::LeaderBoardButton = NULL; // 37
 
+bool Game::isPausedUp = false; // 38
+bool Game::isPausedDown = false; //38
+Entity* Game::PauseButton = NULL; //38
+Entity* Game::PauseScreen = NULL; //38
+
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
 bool Game::isRunning = false;// 17
@@ -129,10 +134,11 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->AddTexture("SUV", "assets/images/SUV.png");
     assets->AddTexture("wagon", "assets/images/wagon.png");
 
-    //thêm màn hình điểm khi thua và leaderboard
+    //thêm màn hình điểm khi thua
     assets->AddTexture("losing_screen", "assets/images/losing_screen.png");
     assets->AddTexture("losing_screen_clicked", "assets/images/losing_screen_clicked.png");
 
+    //thêm leaderboard
     assets->AddTexture("leaderboard", "assets/images/leaderboard.png");
     assets->AddTexture("leaderboard_clicked", "assets/images/leaderboard_clicked.png");
 
@@ -144,25 +150,42 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     //thêm font chữ
     assets->loadFont("font", "assets/fonts/pixelfont.ttf", 15);
     assets->loadFont("gameover_font", "assets/fonts/pixelfont.ttf", 40);
-    assets->loadFont("Type_name", "assets/fonts/pixelfont.ttf", 10);
+    assets->loadFont("Type_name", "assets/fonts/pixelfont.ttf", 12);
     scoreBoard.addComponent<MiniText>(10, 10, "", "font", black);
 
-    //thêm logo và nút chơi, nút leaderboard
+    //thêm logo
     assets->AddTexture("logo", "assets/images/logo.png");
     logo.addComponent<TransformComponent>(logoPositionX, 700, 200, 92, 1, 0, 0);
     logo.addComponent<SpriteComponent>("logo");
 
+    //thêm nút chơi
     assets->AddTexture("play_button", "assets/images/Play_Button.png");
     assets->AddTexture("play_button_clicked", "assets/images/PLay_Button_Clicked.png");
     playButton = &manager.addEntity(); //28
     playButton->addComponent<TransformComponent>((1024 - 100) / 2, 970, 100, 41, 1, 0, 0); 
     playButton->addComponent<SpriteComponent>("play_button");
 
+    //thêm nút leaderboard
     assets->AddTexture("leaderboard_button", "assets/images/leaderboard_button.png");
     assets->AddTexture("leaderboard_button_clicked", "assets/images/leaderboard_button_clicked.png");
     LeaderBoardButton = &manager.addEntity();
     LeaderBoardButton->addComponent<TransformComponent>((1024 - 50) / 2 - 100, 970, 50, 41, 1, 0, 0);
     LeaderBoardButton->addComponent<SpriteComponent>("leaderboard_button"); 
+
+    //thêm nút pause
+    assets->AddTexture("pause_button", "assets/images/pause_button.png");
+    assets->AddTexture("pause_button_clicked", "assets/images/pause_button_clicked.png");
+    PauseButton = &manager.addEntity(); 
+    PauseButton->addComponent<TransformComponent>(0, 0, 40, 40, 1, 0, 0);
+    PauseButton->addComponent<SpriteComponent>("pause_button");
+
+    assets->AddTexture("pause_screen", "assets/images/pause_screen.png");
+    assets->AddTexture("pause_screen1", "assets/images/pause_screen1.png");
+    assets->AddTexture("pause_screen2", "assets/images/pause_screen2.png");
+    assets->AddTexture("pause_screen3", "assets/images/pause_screen3.png");
+    PauseScreen = &manager.addEntity();
+    PauseScreen->addComponent<TransformComponent>(0, 0, 50, 50, 1, 0, 0);
+    PauseScreen->addComponent<SpriteComponent>("pause_screen");
 
     //các khung viết chữ
     writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
@@ -221,12 +244,38 @@ void Game::handleEvents(){
 
     if (isSquashed) return;
     
-    SDL_PollEvent(&event); 
+    if (!isPausedUp) SDL_PollEvent(&event); 
     
+    else {
+        SDL_Event e;
+        while (SDL_PollEvent(&e)) {
+            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+
+                int ngumouseX, ngumouseY;
+                SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
+
+                int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
+                int mouseY = ngumouseY + Game::screen.y;
+
+                if (mouseX >= Game::PauseScreen->getComponent<TransformComponent>().position.x &&
+                    mouseX <= Game::PauseScreen->getComponent<TransformComponent>().position.x + Game::PauseScreen->getComponent<TransformComponent>().width &&
+                    mouseY >= Game::PauseScreen->getComponent<TransformComponent>().position.y &&
+                    mouseY <= Game::PauseScreen->getComponent<TransformComponent>().position.y + Game::PauseScreen->getComponent<TransformComponent>().height) {
+
+                        Game::isPausedUp = false;
+                        //Game::exitPauseScreen = true;
+
+                }
+            }
+        }
+    }
+   
 }
 
 void Game::update(){
     
+    
+
     // chỉ update cho xe chạy nếu chưa nhấn nút chơi
     if (!playButtonClickedUp) {
         manager.refresh();//8
@@ -234,12 +283,19 @@ void Game::update(){
         return;
     } 
 
+    // nếu ấn PauseButton thì tạm thời không cập nhật
+    if (isPausedUp){
+        assets->pauseMusic();
+        return;
+    }
+    assets->resumeMusic();
+
     //mapcollider
     SDL_Rect playerCol = player.getComponent<ColliderComponent>().collider; // lấy collider của player
     Vector2D playerPos = player.getComponent<TransformComponent>().position; // lấy vị trí của player để khi va chạm với vật cản thì trở về trạng thái chưa va chạm 
 
     manager.refresh();//8
-    manager.update();//6 
+    manager.update();//6
 
     //logo moving
     if (isLogoActive) {
@@ -317,9 +373,9 @@ void Game::update(){
         }
     }
 
-    // cout << "chicken position: (" 
-    // << player.getComponent<TransformComponent>().position.x << ", " 
-    // << player.getComponent<TransformComponent>().position.y << ")" << endl;
+    cout << "chicken position: (" 
+    << player.getComponent<TransformComponent>().position.x << ", " 
+    << player.getComponent<TransformComponent>().position.y << ")" << endl;
 
 }
 
@@ -333,7 +389,23 @@ void Game::render(){
     for (auto& d : dangers) d->draw();
     for (auto& p : players) p->draw(); 
     
-    if (playButtonClickedUp) scoreBoard.draw(); // Score text
+    if (playButtonClickedUp) { 
+        scoreBoard.draw(); // Score text
+
+        // PauseButton cũng được vẽ nếu bấm nút chơi
+        if (!isPausedUp) {
+            // căn góc phải của màn hình
+            auto& pb = PauseButton->getComponent<TransformComponent>();
+            const int digit = 10;
+            pb.position.x = screen.x + WIDTH - pb.width - digit;
+            pb.position.y = screen.y + digit;
+
+            if (isPausedDown) PauseButton->getComponent<SpriteComponent>().setTex("pause_button_clicked");
+            else PauseButton->getComponent<SpriteComponent>().setTex("pause_button");
+            PauseButton->draw();
+        }
+
+    }
     
     if (isLogoActive) {
         logo.draw();
@@ -399,13 +471,40 @@ void Game::render(){
         auto& wL = writeLeaderBoard.getComponent<MiniText>();
 
         vector<Player> p = leaderBoard->getPlayers();
-        int y = dstRect.y + 50;
+        int y = dstRect.y + 91;
         for (size_t i = 0; i < p.size(); ++i) {
             wL.SetLabelText(p[i].name + ": " + to_string(p[i].scores), "Type_name");
             wL.setPosition(dstRect.x + (dstRect.w - wL.getWidth()) / 2, y);
             wL.draw();
-            y += 20;
+            y += 24;
         }
+
+    }
+
+    if (isPausedUp) {
+        //vẽ một khung bán trong suốt
+        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+        SDL_Rect  blur = {0,0, WIDTH, HEIGHT};
+        SDL_RenderFillRect(renderer, &blur);
+
+        //căn giữa 
+        SDL_Texture* pauseTex = assets->GetTexture("pause_screen");
+        int texW, texH;
+        //lấy kích thước của texture
+        SDL_QueryTexture(pauseTex, NULL, NULL, &texW, &texH);
+        SDL_Rect dst{(WIDTH  - texW) / 2, (HEIGHT - texH) / 2, texW, texH};
+
+        auto& ps = PauseScreen->getComponent<TransformComponent>();
+        ps.position.x = screen.x + dst.x;
+        ps.position.y = screen.y + dst.y;
+        ps.width = dst.w;
+        ps.height = dst.h;
+
+        // cout << ps.position.x << " " << ps.position.y << endl;
+
+        //Vẽ thẳng lên renderer
+        SDL_RenderCopy(renderer, pauseTex, NULL, &dst);
 
     }
 

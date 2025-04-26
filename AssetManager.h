@@ -37,6 +37,7 @@ public:
     void playSound(string id, int loop);
     void playMusic(string id, int loop);
     void pauseMusic();
+    void resumeMusic();
     void stopSound(string id);
 
     //Text management
