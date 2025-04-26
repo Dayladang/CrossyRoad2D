@@ -244,9 +244,9 @@ void Game::handleEvents(){
 
     if (isSquashed) return;
     
-    if (!isPausedUp) SDL_PollEvent(&event); 
+    if (!isPausedUp) SDL_PollEvent(&event); // nếu không ở trạng thái pause thì cập nhật bình thường 
     
-    else {
+    else { // nếu ở trạng thái pause thì vì return luôn, không cho manager cập nhật nên phải dùng một biến event khác để bắt sự kiện nếu chuột bấm vào PauseScreen
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
@@ -263,7 +263,6 @@ void Game::handleEvents(){
                     mouseY <= Game::PauseScreen->getComponent<TransformComponent>().position.y + Game::PauseScreen->getComponent<TransformComponent>().height) {
 
                         Game::isPausedUp = false;
-                        //Game::exitPauseScreen = true;
 
                 }
             }
@@ -273,8 +272,6 @@ void Game::handleEvents(){
 }
 
 void Game::update(){
-    
-    
 
     // chỉ update cho xe chạy nếu chưa nhấn nút chơi
     if (!playButtonClickedUp) {
@@ -373,9 +370,9 @@ void Game::update(){
         }
     }
 
-    cout << "chicken position: (" 
-    << player.getComponent<TransformComponent>().position.x << ", " 
-    << player.getComponent<TransformComponent>().position.y << ")" << endl;
+    // cout << "chicken position: (" 
+    // << player.getComponent<TransformComponent>().position.x << ", " 
+    // << player.getComponent<TransformComponent>().position.y << ")" << endl;
 
 }
 

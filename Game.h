@@ -67,7 +67,6 @@ public:
     static bool isPausedDown;
     static Entity* PauseButton;
     static Entity* PauseScreen;
-    //static bool exitPauseScreen;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

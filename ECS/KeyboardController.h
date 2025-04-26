@@ -145,17 +145,6 @@ public :
                         }
                     }
 
-                    // if (Game::isPausedUp) {
-                    //     if (mouseX >= Game::PauseScreen->getComponent<TransformComponent>().position.x &&
-                    //     mouseX <= Game::PauseScreen->getComponent<TransformComponent>().position.x + Game::PauseScreen->getComponent<TransformComponent>().width &&
-                    //     mouseY >= Game::PauseScreen->getComponent<TransformComponent>().position.y &&
-                    //     mouseY <= Game::PauseScreen->getComponent<TransformComponent>().position.y + Game::PauseScreen->getComponent<TransformComponent>().height) {
-
-                    //         Game::isPausedUp = false;
-                    //         //Game::exitPauseScreen = true;
-
-                    //     }
-                    // }
                 }        
                 
             }
