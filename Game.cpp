@@ -53,6 +53,13 @@ bool Game::isPausedDown = false; //38
 Entity* Game::PauseButton = NULL; //38
 Entity* Game::PauseScreen = NULL; //38
 
+Entity* Game::quitGame = NULL; //39
+bool Game::quitGameUp = false;//39
+bool Game::quitGameYesUp = false;//39
+bool Game::quitGameYesDown = false; //39
+bool Game::quitGameNoUp = false;//39
+bool Game::quitGameNoDown = false;// 39
+
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
 bool Game::isRunning = false;// 17
@@ -193,6 +200,14 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     writeName2.addComponent<MiniText>(0, 0, "", "Type_name", white);
     writeLeaderBoard.addComponent<MiniText>(0, 0, "", "Type_name", white);
 
+    //thêm màn hình quit
+    assets->AddTexture("quit", "assets/images/quit.png");
+    assets->AddTexture("quit_yes", "assets/images/quit_yes.png");
+    assets->AddTexture("quit_no", "assets/images/quit_no.png");
+    quitGame = &manager.addEntity();
+    quitGame->addComponent<TransformComponent>(0, 0, 256, 80, 1, 0, 0);
+    quitGame->addComponent<SpriteComponent>("quit");
+
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
     gameMap->LoadMap("assets/maptile/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
@@ -249,23 +264,30 @@ void Game::handleEvents(){
     else { // nếu ở trạng thái pause thì vì return luôn, không cho manager cập nhật nên phải dùng một biến event khác để bắt sự kiện nếu chuột bấm vào PauseScreen
         SDL_Event e;
         while (SDL_PollEvent(&e)) {
+
+            if (e.type == SDL_QUIT) {
+                isRunning = false;
+            }
+
             if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
 
                 int ngumouseX, ngumouseY;
                 SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
 
-                int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
-                int mouseY = ngumouseY + Game::screen.y;
+                int mouseX = ngumouseX + screen.x;// lấy tọa độ chuột trong map
+                int mouseY = ngumouseY + screen.y;
 
-                if (mouseX >= Game::PauseScreen->getComponent<TransformComponent>().position.x &&
-                    mouseX <= Game::PauseScreen->getComponent<TransformComponent>().position.x + Game::PauseScreen->getComponent<TransformComponent>().width &&
-                    mouseY >= Game::PauseScreen->getComponent<TransformComponent>().position.y &&
-                    mouseY <= Game::PauseScreen->getComponent<TransformComponent>().position.y + Game::PauseScreen->getComponent<TransformComponent>().height) {
+                if (mouseX >= PauseScreen->getComponent<TransformComponent>().position.x &&
+                    mouseX <= PauseScreen->getComponent<TransformComponent>().position.x + PauseScreen->getComponent<TransformComponent>().width &&
+                    mouseY >= PauseScreen->getComponent<TransformComponent>().position.y &&
+                    mouseY <= PauseScreen->getComponent<TransformComponent>().position.y + PauseScreen->getComponent<TransformComponent>().height) {
 
-                        Game::isPausedUp = false;
+                        isPausedUp = false;;
 
                 }
             }
+
+            event = e; // cập nhật event chính khi game đang pause
         }
     }
    
@@ -275,9 +297,20 @@ void Game::update(){
 
     // chỉ update cho xe chạy nếu chưa nhấn nút chơi
     if (!playButtonClickedUp) {
+
         manager.refresh();//8
         manager.update();//6 
+
+        if (quitGameUp) { // xử lí quitGame kể cả khi nút chơi chưa được ấn
+            if (quitGameYesUp) isRunning = false;
+            else if (quitGameNoUp) {
+                quitGameUp    = false;
+                quitGameNoUp  = false;
+            }
+        }
+
         return;
+
     } 
 
     // nếu ấn PauseButton thì tạm thời không cập nhật
@@ -370,6 +403,13 @@ void Game::update(){
         }
     }
 
+    if (quitGameYesUp) isRunning = false;
+
+    if (quitGameNoUp) {
+        quitGameUp = false;
+        quitGameNoUp = false;
+    }
+
     // cout << "chicken position: (" 
     // << player.getComponent<TransformComponent>().position.x << ", " 
     // << player.getComponent<TransformComponent>().position.y << ")" << endl;
@@ -390,7 +430,7 @@ void Game::render(){
         scoreBoard.draw(); // Score text
 
         // PauseButton cũng được vẽ nếu bấm nút chơi
-        if (!isPausedUp) {
+        if (!isPausedUp && !quitGameUp && !UIwriteName) {
             // căn góc phải của màn hình
             auto& pb = PauseButton->getComponent<TransformComponent>();
             const int digit = 10;
@@ -481,7 +521,7 @@ void Game::render(){
     if (isPausedUp) {
         //vẽ một khung bán trong suốt
         SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 128);
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
         SDL_Rect  blur = {0,0, WIDTH, HEIGHT};
         SDL_RenderFillRect(renderer, &blur);
 
@@ -505,6 +545,22 @@ void Game::render(){
 
     }
 
+    if (quitGameUp) {
+        SDL_Texture* tmp = assets->GetTexture("quit");
+        if (quitGameYesDown) {
+            tmp = assets->GetTexture("quit_yes");
+        }
+        else if (quitGameNoDown) {
+            tmp = assets->GetTexture("quit_no");
+        }
+
+        int texW, texH;
+        SDL_QueryTexture(tmp, NULL, NULL, &texW, &texH);
+
+        SDL_Rect dstRect = {(WIDTH - texW) / 2, (HEIGHT - texH) / 2, texW, texH};
+        SDL_RenderCopy(renderer, tmp, NULL, &dstRect); 
+    }
+
     SDL_RenderPresent(renderer);
 }
 
@@ -520,6 +576,9 @@ void Game::resetGame() {
     leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt 
     LeaderBoardButtonUp = false;
     exitLeaderBoardUp = false;
+    quitGameUp = false;
+    quitGameYesUp = false;
+    quitGameNoUp = false;
  
     // reset vị trí của logo
     logoPositionX = (1024 - 200) / 2;

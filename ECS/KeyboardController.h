@@ -24,7 +24,10 @@ public :
                 return ;
             } 
 
-            if ( Game::event.type == SDL_QUIT) Game::isRunning = false;
+            if ( Game::event.type == SDL_QUIT) {
+                if (Game::quitGameUp) Game::quitGameUp = false; //nếu đang trong màn hình quit thì bấm esc phát nữa để thoát màn hình quit
+                else Game::quitGameUp = true;
+            }
 
             else if ( Game::event.type == SDL_KEYDOWN ){
 
@@ -45,7 +48,10 @@ public :
                 else {
                     const Uint8* check = SDL_GetKeyboardState(NULL);
 
-                    if (check[SDL_SCANCODE_ESCAPE]) Game::isRunning = false; // bấm esc để thoát game
+                    if (check[SDL_SCANCODE_ESCAPE]) {
+                        if (Game::quitGameUp) Game::quitGameUp = false; //nếu đang trong màn hình quit thì bấm esc phát nữa để thoát màn hình quit
+                        else Game::quitGameUp = true;
+                    }
 
                     if (!Game::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
 
@@ -134,7 +140,7 @@ public :
                         }
                     }
 
-                    if (Game::playButtonClickedUp) {
+                    if (Game::playButtonClickedUp && !Game::quitGameUp && !Game::UIwriteName && !Game::LeaderBoardButtonUp) {
                         if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
@@ -145,6 +151,18 @@ public :
                         }
                     }
 
+                    if (Game::quitGameUp) {
+                        if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
+                            
+                            Game::quitGameNoDown = true;
+
+                        }
+                        else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
+
+                            Game::quitGameYesDown = true;
+
+                        }
+                    }
                 }        
                 
             }
@@ -206,7 +224,7 @@ public :
                         }
                     }
 
-                    if (Game::playButtonClickedUp) {
+                    if (Game::playButtonClickedUp && !Game::quitGameUp && !Game::UIwriteName && !Game::LeaderBoardButtonUp) {
                         if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
@@ -214,6 +232,21 @@ public :
 
                             Game::isPausedDown = false;
                             Game::isPausedUp = true;
+
+                        }
+                    }
+
+                    if (Game::quitGameUp) {
+                        if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
+                            
+                            Game::quitGameNoDown = false;
+                            Game::quitGameNoUp = true;
+
+                        }
+                        else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
+
+                            Game::quitGameYesDown = false;
+                            Game::quitGameYesUp = true;
 
                         }
                     }
