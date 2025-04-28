@@ -153,6 +153,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     assets->loadMusic("thememusic", "assets/sound/thememusic.mp3");
     assets->loadSound("chickensound","assets/sound/chicken_sound.mp3");
     assets->loadSound("crashsound", "assets/sound/chicken_crashsound.mp3");
+    assets->loadSound("click_up", "assets/sound/click_up.mp3");
+    assets->loadSound("click_down", "assets/sound/click_down.mp3");
 
     //thêm font chữ
     assets->loadFont("font", "assets/fonts/pixelfont.ttf", 15);
@@ -282,7 +284,9 @@ void Game::handleEvents(){
                     mouseY >= PauseScreen->getComponent<TransformComponent>().position.y &&
                     mouseY <= PauseScreen->getComponent<TransformComponent>().position.y + PauseScreen->getComponent<TransformComponent>().height) {
 
-                        isPausedUp = false;;
+                        isPausedUp = false;
+                        assets->playSound("click_down", 0);
+                        assets->playSound("click_up", 0);
 
                 }
             }
