@@ -25,8 +25,9 @@ public :
             } 
 
             if ( Game::event.type == SDL_QUIT) {
-                if (Game::quitGameUp) Game::quitGameUp = false; //nếu đang trong màn hình quit thì bấm esc phát nữa để thoát màn hình quit
-                else Game::quitGameUp = true;
+                Game::quitGameUp = true;
+                Game::assets->playSound("click_up", 0);
+                Game::assets->playSound("click_down", 0);
             }
 
             else if ( Game::event.type == SDL_KEYDOWN ){
@@ -111,6 +112,7 @@ public :
                         mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
 
                             Game::playButtonClickedDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                     }
@@ -118,6 +120,7 @@ public :
                     if (Game::UIwriteName) { // khi màn hình thua mở ra 
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát màn hình thua
                             Game::exitGameloseDown = true;
+                            Game::assets->playSound("click_down", 0);
                         }
                     }
 
@@ -125,6 +128,7 @@ public :
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::exitLeaderBoardDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                     }
@@ -136,6 +140,7 @@ public :
                         mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
 
                             Game::LeaderBoardButtonDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                     }
@@ -147,6 +152,7 @@ public :
                         mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
 
                             Game::isPausedDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                     }
@@ -155,11 +161,13 @@ public :
                         if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::quitGameNoDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                         else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
 
                             Game::quitGameYesDown = true;
+                            Game::assets->playSound("click_down", 0);
 
                         }
                     }
@@ -184,6 +192,7 @@ public :
                         mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
 
                             Game::playButtonClickedDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::playButtonClickedUp = true; // that nút ra thì bắt đầu game
 
                         }
@@ -193,6 +202,7 @@ public :
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát màn hình thua
                             
                             Game::exitGameloseDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::exitGameloseUp = true;
                             Game::resetGame(); // reset game khi thả nút thoát màn hình thua
 
@@ -203,6 +213,7 @@ public :
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::exitLeaderBoardDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::exitLeaderBoardUp = true;
 
                             Game::playButtonClickedUp = false; //reset lại trạng thái nút chơi chưa được bấm
@@ -219,6 +230,7 @@ public :
                         mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
 
                             Game::LeaderBoardButtonDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::LeaderBoardButtonUp = true;
 
                         }
@@ -231,6 +243,7 @@ public :
                         mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
 
                             Game::isPausedDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::isPausedUp = true;
 
                         }
@@ -240,12 +253,14 @@ public :
                         if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::quitGameNoDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::quitGameNoUp = true;
 
                         }
                         else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
 
                             Game::quitGameYesDown = false;
+                            Game::assets->playSound("click_up", 0);
                             Game::quitGameYesUp = true;
 
                         }
