@@ -39,6 +39,8 @@ public:
     void pauseMusic();
     void resumeMusic();
     void stopSound(string id);
+    void MuteMusicAndSound();
+    void unMuteMusicAndSound();
 
     //Text management
     bool initTTF();

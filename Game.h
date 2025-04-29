@@ -75,6 +75,12 @@ public:
     static bool quitGameYesUp;
     static bool quitGameYesDown;
 
+    static Entity* mutedButton;
+    static bool unMutedButtonUp;
+    static bool unMutedButtonDown;
+    static bool MutedButtonUp;
+    static bool MutedButtonDown;
+
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,
         groupPlayer,

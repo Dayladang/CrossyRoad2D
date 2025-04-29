@@ -60,6 +60,12 @@ bool Game::quitGameYesDown = false; //39
 bool Game::quitGameNoUp = false;//39
 bool Game::quitGameNoDown = false;// 39
 
+Entity* Game::mutedButton = NULL; // 40
+bool Game::unMutedButtonUp = true; //40
+bool Game::unMutedButtonDown = false; //40
+bool Game::MutedButtonUp = false; //40
+bool Game::MutedButtonDown = false; //40
+
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
 bool Game::isRunning = false;// 17
@@ -196,6 +202,15 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     PauseScreen->addComponent<TransformComponent>(0, 0, 50, 50, 1, 0, 0);
     PauseScreen->addComponent<SpriteComponent>("pause_screen");
 
+    //thêm nút mute
+    mutedButton = &manager.addEntity();
+    assets->AddTexture("unmuted_up", "assets/images/unmuted_button.png");
+    assets->AddTexture("unmuted_down", "assets/images/unmuted_button_clicked.png");
+    assets->AddTexture("muted_up", "assets/images/muted_button.png");
+    assets->AddTexture("muted_down", "assets/images/muted_button_clicked.png");
+    mutedButton->addComponent<TransformComponent>((1024 - 50) / 2 + 100, 970, 50, 41, 1, 0, 0);
+    mutedButton->addComponent<SpriteComponent>("unmuted_up");
+
     //các khung viết chữ
     writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
     writeName.addComponent<MiniText>(0, 0, "", "Type_name", white);
@@ -271,7 +286,7 @@ void Game::handleEvents(){
                 isRunning = false;
             }
 
-            if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
+            else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT) {
 
                 int ngumouseX, ngumouseY;
                 SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
@@ -286,7 +301,6 @@ void Game::handleEvents(){
 
                         isPausedUp = false;
                         assets->playSound("click_down", 0);
-                        assets->playSound("click_up", 0);
 
                 }
             }
@@ -311,6 +325,13 @@ void Game::update(){
                 quitGameUp    = false;
                 quitGameNoUp  = false;
             }
+        }
+
+        if (MutedButtonUp) { // thêm điều kiện này để có thể mute nhạc ngay khi chưa ấn play
+            assets->MuteMusicAndSound();
+        }
+        else if (unMutedButtonUp) {
+            assets->unMuteMusicAndSound();
         }
 
         return;
@@ -471,6 +492,17 @@ void Game::render(){
             LeaderBoardButton->getComponent<SpriteComponent>().setTex("leaderboard_button");           
         }
         LeaderBoardButton->draw();
+
+        //vẽ nút mute
+        string tex;
+        if (MutedButtonUp && !unMutedButtonUp) {
+            tex = MutedButtonDown ? "muted_down" : "muted_up";
+        }
+        else if (unMutedButtonUp && !MutedButtonUp) {
+            tex = unMutedButtonDown ? "unmuted_down" : "unmuted_up";
+        }
+        mutedButton->getComponent<SpriteComponent>().setTex(tex);
+        mutedButton->draw();
     }
 
     if (UIwriteName && !exitGameloseUp) {

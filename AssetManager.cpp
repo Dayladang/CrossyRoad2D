@@ -42,7 +42,7 @@ void AssetManager::playSound(string id, int loop){
 void AssetManager::playMusic(string id, int loop){
     Mix_Music* musicsound = music[id];
     Mix_PlayMusic(musicsound, loop);
-    Mix_VolumeMusic(MIX_MAX_VOLUME / 2); // giảm âm lượng nhạc nền
+    //x_VolumeMusic(MIX_MAX_VOLUME / 2); // giảm âm lượng nhạc nền
 }
 
 void AssetManager::pauseMusic(){
@@ -59,6 +59,16 @@ void AssetManager::resumeMusic() {
 
 void AssetManager::stopSound(string id){
     Mix_HaltChannel(-1);
+}
+
+void AssetManager::MuteMusicAndSound() {
+    Mix_VolumeMusic(0);
+    Mix_Volume(-1, 0);
+}
+
+void AssetManager::unMuteMusicAndSound() {
+    Mix_VolumeMusic(MIX_MAX_VOLUME / 2);
+    Mix_Volume(-1, MIX_MAX_VOLUME / 2);
 }
 
 bool AssetManager::initTTF(){

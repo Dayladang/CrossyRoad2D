@@ -24,9 +24,8 @@ public :
                 return ;
             } 
 
-            if ( Game::event.type == SDL_QUIT) {
+            else if ( Game::event.type == SDL_QUIT) {
                 Game::quitGameUp = true;
-                Game::assets->playSound("click_up", 0);
                 Game::assets->playSound("click_down", 0);
             }
 
@@ -95,7 +94,7 @@ public :
                 if (!check[SDL_SCANCODE_RSHIFT]) transform->speed = 1;
             }
 
-            if (Game::event.type == SDL_MOUSEBUTTONDOWN) {
+            else if (Game::event.type == SDL_MOUSEBUTTONDOWN) {
                 if (Game::event.button.button == SDL_BUTTON_LEFT) {
                     int ngumouseX, ngumouseY;
                     SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
@@ -103,9 +102,9 @@ public :
                     int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
                     int mouseY = ngumouseY + Game::screen.y;
 
-                    cout << mouseX << " " << mouseY << endl;
+                    // cout << mouseX << " " << mouseY << endl;
 
-                    if (!Game::LeaderBoardButtonUp) {
+                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp && !Game::UIwriteName) {
                         if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
@@ -133,7 +132,7 @@ public :
                         }
                     }
 
-                    if (!Game::LeaderBoardButtonUp) {
+                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp) {
                         if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
@@ -171,11 +170,28 @@ public :
 
                         }
                     }
+
+                    if (!Game::playButtonClickedUp) {
+                        if (mouseX >= Game::mutedButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::mutedButton->getComponent<TransformComponent>().position.x + Game::mutedButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::mutedButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::mutedButton->getComponent<TransformComponent>().position.y + Game::mutedButton->getComponent<TransformComponent>().height) {
+
+                            if (Game::MutedButtonUp) {
+                                Game::MutedButtonDown = true;
+                            }
+                            else if (Game::unMutedButtonUp) {
+                                Game::unMutedButtonDown = true;
+                            }
+                            Game::assets->playSound("click_down", 0);
+
+                        }
+                    }
                 }        
                 
             }
 
-            if (Game::event.type == SDL_MOUSEBUTTONUP) {
+            else if (Game::event.type == SDL_MOUSEBUTTONUP) {
                 if (Game::event.button.button == SDL_BUTTON_LEFT) {
                     int ngumouseX, ngumouseY;
                     SDL_GetMouseState(&ngumouseX, &ngumouseY); // đây là lấy tọa độ chuột trong của sổ
@@ -185,7 +201,7 @@ public :
 
                     //cout << mouseX << " " << mouseY << endl;
 
-                    if (!Game::LeaderBoardButtonUp) {
+                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp && !Game::UIwriteName) {
                         if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
@@ -223,7 +239,7 @@ public :
                         }
                     }
 
-                    if (!Game::playButtonClickedUp) {
+                    if (!Game::playButtonClickedUp && !Game::playButtonClickedUp) {
                         if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
                         mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
                         mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
@@ -265,10 +281,31 @@ public :
 
                         }
                     }
+
+                    if (!Game::playButtonClickedUp) {
+                        if (mouseX >= Game::mutedButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= Game::mutedButton->getComponent<TransformComponent>().position.x + Game::mutedButton->getComponent<TransformComponent>().width &&
+                        mouseY >= Game::mutedButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= Game::mutedButton->getComponent<TransformComponent>().position.y + Game::mutedButton->getComponent<TransformComponent>().height) {
+                            
+                            if (Game::MutedButtonUp) {
+                                Game::MutedButtonDown = false;
+                                Game::unMutedButtonUp = true;
+                                Game::MutedButtonUp = false;
+                            }
+                            else if (Game::unMutedButtonUp){
+                                Game::unMutedButtonDown = false;
+                                Game::MutedButtonUp = true;
+                                Game::unMutedButtonUp = false;
+                            }
+                            Game::assets->playSound("click_up", 0);
+
+                        }
+                    }
                 }        
             }
 
-            if (Game::event.type == SDL_TEXTINPUT) {
+            else if (Game::event.type == SDL_TEXTINPUT) {
                 if (Game::UIwriteName && !Game::exitGameloseUp) {
 
                     char c = Game::event.text.text[0]; //lấy kí tự vừa nhập vào

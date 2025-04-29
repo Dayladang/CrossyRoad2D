@@ -81,8 +81,8 @@ void LeaderBoard::loadFromFile() {
         }
     }
     file.close();
-    cout << "đã lode file \n"; 
-    for (auto& x : v) cout << x.name << " " << x.scores << endl;
+    // cout << "đã lode file \n"; 
+    // for (auto& x : v) cout << x.name << " " << x.scores << endl;
 }
 
 void LeaderBoard::saveToFile() {
@@ -91,8 +91,8 @@ void LeaderBoard::saveToFile() {
         for (auto& x : v) file << x.name << " " << x.scores << endl;
     }
     file.close();
-    cout << "đã save file \n";
-    for (auto& x : v) cout << x.name << " " << x.scores << endl;
+    // cout << "đã save file \n";
+    // for (auto& x : v) cout << x.name << " " << x.scores << endl;
 }
 
 int LeaderBoard::GetTopScore() {
