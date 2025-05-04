@@ -19,7 +19,7 @@ inline ComponentID getNewComponentTypeID(){
 
 
 template <typename T> //Template cho phép sử dụng kiểu dữ liệu tùy ý 
-inline ComponentID getComponentTypeID() noexcept /*vẫn chưa hiểu noexcept là gì*/{
+inline ComponentID getComponentTypeID() /* noexcept /*vẫn chưa hiểu noexcept là gì*/{
     static ComponentID typeID = getNewComponentTypeID(); // de nhan vao id do ham get phan phoi
     return typeID;
 } 
@@ -45,6 +45,7 @@ public:
     virtual ~Component() {}//
 };
 
+//
 class Entity{
 
 private:
