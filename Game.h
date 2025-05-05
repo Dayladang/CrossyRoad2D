@@ -13,7 +13,7 @@ using namespace std;
 
 const int WIDTH = 512;
 const int HEIGHT = 512;
-const char* WINDOW_TITLE = " Game Time !";
+const char* WINDOW_TITLE = " Crossy Road 2D ";
 
 class ColliderComponent;
 
@@ -92,4 +92,5 @@ public:
 private:   
     SDL_Window* window;  
 };
+
 #endif// GRAPHIC_H

@@ -28,8 +28,6 @@ public:
 
     void addScore(int points);
     void resetScore();
-    // void saveHighScore();
-    // void loadHighScore();
     string getScoreText();
     int getScore();
 
@@ -42,6 +40,7 @@ struct Player {
     string name;
     int scores;
 };
+
 
 class LeaderBoard {
 

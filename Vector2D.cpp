@@ -37,20 +37,20 @@ Vector2D& operator- (Vector2D& v1, Vector2D& v2){
 }
 
 //
-Vector2D& Vector2D::operator+= (const Vector2D& vec){
-    return Add(vec); // có thể thêm this-> ở trước để cho rõ ràng
-}
+// Vector2D& Vector2D::operator+= (const Vector2D& vec){
+//     return Add(vec); // có thể thêm this-> ở trước để cho rõ ràng
+// }
 
-Vector2D& Vector2D::operator-= (const Vector2D& vec){
-    return Subtract(vec);
-}
+// Vector2D& Vector2D::operator-= (const Vector2D& vec){
+//     return Subtract(vec);
+// }
 
-Vector2D& Vector2D::operator* (const int& i){
-    x *= i;
-    y *= i;
+// Vector2D& Vector2D::operator* (const int& i){
+//     x *= i;
+//     y *= i;
 
-    return *this;
-}
+//     return *this;
+// }
 
 Vector2D& Vector2D::Zero(){
     this->x = 0;
@@ -59,7 +59,7 @@ Vector2D& Vector2D::Zero(){
     return *this;
 }
 
-ostream& operator<< (ostream& stream, const Vector2D& vec){
-    stream << "(" << vec.x << "," << vec.y << "(";
-    return stream;
-}
+// ostream& operator<< (ostream& stream, const Vector2D& vec){
+//     stream << "(" << vec.x << "," << vec.y << "(";
+//     return stream;
+// }
