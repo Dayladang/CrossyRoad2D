@@ -11,10 +11,11 @@
 
 using namespace std;
 
-const int WIDTH = 512;
-const int HEIGHT = 512;
-const char* WINDOW_TITLE = " Crossy Road 2D ";
+constexpr int WIDTH = 512; //
+constexpr int HEIGHT = 512;
+extern const char WINDOW_TITLE[];
 
+class AssetManager;
 class ColliderComponent;
 
 class Game{

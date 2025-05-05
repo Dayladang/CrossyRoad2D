@@ -135,7 +135,7 @@ public:
 
     void refresh(){
 
-        for (int i = 0; i < maxGroups; ++i){
+        for (size_t i = 0; i < maxGroups; ++i){
             vector<Entity*>& v = groupedEntities[i];
 
             auto ngu = remove_if(v.begin(), v.end(), [i](Entity* mEntity){

@@ -1,5 +1,5 @@
 
-#include "Game.cpp"//2
+#include "Game.h"//2
 
 using namespace std;
 

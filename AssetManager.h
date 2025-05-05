@@ -3,9 +3,11 @@
 
 #include "ECS/ECS.h"
 #include "Vector2D.h"
+#include "Game.h"
 #include <string>
 #include <map>
 #include <SDL2/SDL.h>
+#include <SDL2/SDL_image.h>
 #include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_ttf.h>
 

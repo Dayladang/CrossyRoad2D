@@ -1,13 +1,15 @@
 #include "Game.h"
-#include "Map.cpp"//5
+#include "Map.h"//5
 #include "ECS/Components.h"
-#include "Vector2D.cpp"//8
-#include "Collision.cpp"//10
-#include "ECS/ECS.cpp" // 16
-#include "AssetManager.cpp" //19 + 23
-#include "ScoreSystem.cpp" // 27
+#include "Vector2D.h"//8
+#include "Collision.h"//10
+#include "ECS/ECS.h" // 16
+// #include "AssetManager.h" //19 + 23
+// #include "ScoreSystem.h" // 27
 
 using namespace std;
+
+const char WINDOW_TITLE[] = " Crossy Road 2D ";
 
 Map* gameMap;
 Manager manager;//6
