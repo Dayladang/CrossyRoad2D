@@ -28,10 +28,15 @@ debug:
 $(EXEC): $(OBJ)
 	$(CXX) $(OBJ) -o $@ $(LDLIBS)
 	@echo "Built $@"
+	-del /Q $(subst /,\,$(OBJ))
 
 # Biên dịch từng .cpp → .o
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Chạy chương trình
+run: $(EXEC)
+	$(EXEC)
 
 # Xóa các file .o và .exe
 clean:
