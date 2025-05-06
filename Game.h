@@ -11,9 +11,9 @@
 
 using namespace std;
 
-constexpr int WIDTH = 512; //
+constexpr int WIDTH = 512; // constexpr giá trị của WIDTH được xác định ngay trong lúc viên dịch -> giúp chương trình chạy nhanh và an toàn hơn
 constexpr int HEIGHT = 512;
-extern const char WINDOW_TITLE[];
+extern const char WINDOW_TITLE[]; // extern là khai báo biến toàn cục, sẽ được định nghĩa trong file khác và khai báo ở đây để sử dụng trong file này tránh việc tạo ra bản sao mới "multiple definition"
 
 class AssetManager;
 class ColliderComponent;

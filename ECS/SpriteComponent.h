@@ -27,7 +27,7 @@ public:
 
     map<const char*, Animation> animations; // Lưu trữ các animation
 
-    SpriteComponent() = default;
+    SpriteComponent() = default; // nếu muốn có trường hợp constructor mặc định thì phải thêm default vào
 
     SpriteComponent(string id){
         setTex(id);

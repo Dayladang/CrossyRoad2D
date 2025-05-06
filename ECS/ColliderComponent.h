@@ -36,7 +36,7 @@ public:
         }
         transform = &entity->getComponent<TransformComponent>();
 
-        tex = IMG_LoadTexture(Game::renderer, "") ; // Load texture cho collider
+        tex = IMG_LoadTexture(Game::renderer, "") ; // Load texture cho collider, vì không cần hiện nên không để link
         srcR = {0, 0, 32, 32};
         destR = {collider.x, collider.y, collider.w, collider.h};
 
