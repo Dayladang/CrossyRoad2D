@@ -26,3 +26,6 @@ Desktop.ini
 
 # Logs
 *.log
+
+#unused
+SDL_Game/
