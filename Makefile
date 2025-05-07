@@ -34,9 +34,17 @@ $(EXEC): $(OBJ)
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
-# Chạy chương trình
-run: $(EXEC)
+# Build và chạy chương trình
+buildrun: $(EXEC)
 	$(EXEC)
+
+# Chạy chương trình
+run:
+	@if exist $(EXEC) ( \
+		$(EXEC) \
+	) else ( \
+		echo "$(EXEC) does not exist. Run 'make' first." \
+	)
 
 # Xóa các file .o và .exe
 clean:

@@ -1,5 +1,28 @@
+# IDE/Editor
 /.vscode
-/build/debug
+/.idea
+*.swp
+*.swo
+
+# Build files
+/build/
+/bin/
+*.o
+*.obj
+*.exe
 program
-sdl2
+CrossyRoad.exe
+CrossyRoad
+
+# macOS
 .DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Logs
+*.log
