@@ -14,11 +14,9 @@ public :
     SDL_Rect srcRect, destRect; // 
     Vector2D position; // vị trí của tile trên map
     
-    TileComponent() = default;
+    TileComponent() = default; // giống như constructor mặc định trình biên dịch tự sinh ra nếu không có constructor
 
-    ~TileComponent(){
-        SDL_DestroyTexture(texture);
-    }
+    ~TileComponent() = default;
 
     TileComponent(int srcX, int srcY, int xpos, int ypos, int tsize, int tscale, std::string id){
         texture = Game::assets->GetTexture(id);
@@ -45,6 +43,9 @@ public :
     }
 
     void draw() override {
+        if (!texture) {
+            std::cerr << "[TileComponent] Texture nullptr at draw!" << std::endl;
+        } 
         SDL_RenderCopy(Game::renderer, texture, &srcRect, &destRect);
     }
 

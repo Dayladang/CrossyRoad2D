@@ -12,6 +12,8 @@ int main(int argc, char* argv[]){
     Uint32 FrameRun;//3
     int Frametime;//3
 
+    srand(time(NULL)); // khởi tạo seed cho hàm rand()
+
     game = new Game();
     game->initSDL(WIDTH, HEIGHT, WINDOW_TITLE);
 

@@ -6,6 +6,9 @@
 #include <fstream>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <cstdlib>
+#include <ctime>
+#include <cassert>
 #include "AssetManager.h"
 #include "ScoreSystem.h"
 
@@ -23,6 +26,10 @@ class Game{
 public:
     Game();
     ~Game();
+
+    static vector<string> mapList;
+    static vector<string> vehiclesFiles;
+    static void loadVehiclesForMap(int mapIndex);
 
     void initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE);
     void handleEvents();
@@ -81,6 +88,11 @@ public:
     static bool unMutedButtonDown;
     static bool MutedButtonUp;
     static bool MutedButtonDown;
+
+    static bool isMap2Loading;
+    static bool resetDone; // kiểm tra xem đã reset map 2 chưa
+    
+    static Entity* exitWriteName;
 
     enum groupLabels : size_t { // size_t được định nghĩa trong ECS.h là Group
         groupMap,

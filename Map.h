@@ -12,13 +12,14 @@ public:
     Map(string tID, int mapscale, int tilesize);
     ~Map();
 
-    void LoadMap(string path, int sizeX, int sizeY, int gridWidth);
+    void LoadMap(string path, int sizeX, int sizeY, int gridWidth, int offsetY);
     void AddTile(int srcX, int srcY, int xpos, int ypos);
 
 private:
     string texID;
     int mapScale;
     int tileSize;
+    int mapOffsetY;
 
 };
 

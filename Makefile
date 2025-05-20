@@ -35,7 +35,7 @@ $(EXEC): $(OBJ)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # Build và chạy chương trình
-buildrun: $(EXEC)
+b: $(EXEC)
 	$(EXEC)
 
 # Chạy chương trình
@@ -50,3 +50,9 @@ run:
 clean:
 	@echo "Cleaning build artifacts..."
 	-del /Q $(subst /,\,$(OBJ)) $(EXEC)
+
+# Dừng chương trình
+kill:
+	@echo "Stopping program..."
+	@taskkill /F /IM $(EXEC) >nul 2>&1 || echo "No process found."
+	@echo "Program stopped."

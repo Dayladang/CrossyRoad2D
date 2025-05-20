@@ -33,6 +33,7 @@ using GroupBitset = bitset<maxGroups>; //
 
 using ComponentArray = array<Component*, maxComponents>;// cũng giống như mảng một chiều, <kiểu dữ liệ, số lượng phần tử > tên mảng
 
+// quản lí các component
 class Component{
 
 public:
@@ -45,7 +46,29 @@ public:
     virtual ~Component() {}//
 };
 
-//
+
+// xây dựng class để quản lí các entities. Định nghĩa trước để có thể sử dụng trong class Entity
+class Manager{
+
+private:
+    vector< unique_ptr<Entity> > entities; // tạo một vector các entity
+    vector<Entity*> groupedEntities[maxGroups]; // một mảng 2 chiều lưu trữ các entity theo nhóm ( array< vector<Entity*>, maxGroups> groupedEntities)
+
+public:
+    void update();
+
+    void draw();
+
+    void refresh();
+
+    void addToGroup(Entity* mEntity, Group mGroup);
+
+    vector<Entity*>& getGroup(Group mGroup);
+
+    Entity& addEntity();
+};
+
+// 
 class Entity{
 
 private:
@@ -70,10 +93,23 @@ public:
         for (auto& c : components) c->draw();
     }
 
-    bool isActive() { return active; }
+    bool isActive() const { 
+        if (this == nullptr) return false; // nếu entity đã bị xóa thì trả về false
+        return active; 
+    }
 
     void destroy() { 
         active = false; 
+        // Xóa entity khỏi tất cả group mà nó thuộc về
+        for (size_t i = 0; i < maxGroups; ++i) {
+            if (groupBitset[i]) {
+                manager.getGroup(i).erase(
+                    std::remove(manager.getGroup(i).begin(), manager.getGroup(i).end(), this),
+                    manager.getGroup(i).end()
+                );
+                groupBitset[i] = false;
+            }
+        }
     }
 
     bool hasGroup(Group mGroup){
@@ -113,60 +149,6 @@ public:
         auto ptr = componentArray[getComponentTypeID<T>()];
         return *static_cast<T*>(ptr);// trả về chuyển kiểu dữ liệu kiểu của component từ Component* sang T*
     } 
-
-};
-
-// xây dựng class để quản lí các entities
-class Manager{
-
-private:
-    vector< unique_ptr<Entity> > entities; // tạo một vector các entity
-    vector<Entity*> groupedEntities[maxGroups]; // một mảng 2 chiều lưu trữ các entity theo nhóm ( array< vector<Entity*>, maxGroups> groupedEntities)
-
-public:
-    void update(){
-        for (auto& e : entities) e->update();
-    }
-    void draw(){
-        for (auto& e : entities) {
-            if (e->isActive()) e->draw();
-        }
-    }
-
-    void refresh(){
-
-        for (size_t i = 0; i < maxGroups; ++i){
-            vector<Entity*>& v = groupedEntities[i];
-
-            auto ngu = remove_if(v.begin(), v.end(), [i](Entity* mEntity){
-                return !mEntity->isActive() || !mEntity->hasGroup(i);//trả về true nếu entity không hoạt động hoặc không có trong nhóm
-                });
-
-            v.erase(ngu, v.end());
-        }
-
-        auto ngu = remove_if( entities.begin(), entities.end(), [](const unique_ptr<Entity> &mEntity) 
-            {
-                return !mEntity->isActive();// trả về true nếu entity hết hoạt động
-            });
-
-        entities.erase(ngu, entities.end() ); // xóa các phần tử được remove_if chuyển xuống dưới
-    }
-
-    void addToGroup(Entity* mEntity, Group mGroup){
-        groupedEntities[mGroup].emplace_back(mEntity);
-    }
-
-    vector<Entity*>& getGroup(Group mGroup){
-        return groupedEntities[mGroup]; // trả về vector các entity trong nhóm
-    }
-
-    Entity& addEntity(){
-        Entity* e = new Entity(*this); // truyền vào manager để quản lí entity
-        unique_ptr<Entity> uPtr{ e }; // unique_ptr được tạo ra và quản lý đối tượng Entity mà con trỏ thô e trỏ tới. Quyền sở hữu đối Entity được chuyển từ e sang uPtr 
-        entities.push_back(move(uPtr));// move : chuyển quyền sở hữu của uPtr sang entities
-        return *e;
-    }
 
 };
 

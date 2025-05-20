@@ -17,11 +17,9 @@ Map::Map(string tID, int mapscale, int tilesize){
     tileSize = tilesize;
 }
 
-Map::~Map(){
+Map::~Map() = default;
 
-}
-
-void Map::LoadMap(string path, int sizeX, int sizeY, int gridWidth) {
+void Map::LoadMap(string path, int sizeX, int sizeY, int gridWidth, int offsetY) {
     fstream mapFile(path, ios::in);
     if (!mapFile.is_open()) {
         cerr << "Failed to open map file: " << path << std::endl;
@@ -53,7 +51,7 @@ void Map::LoadMap(string path, int sizeX, int sizeY, int gridWidth) {
             int srcX = tileCode % gridWidth; // Cột trong sprite sheet
             int srcY = tileCode / gridWidth; // Hàng trong sprite sheet
 
-            AddTile(srcX * tileSize, srcY * tileSize, x * (tileSize * mapScale), y * (tileSize * mapScale)); // Thêm tile vào bản đồ
+            AddTile(srcX * tileSize, srcY * tileSize, x * (tileSize * mapScale), y * (tileSize * mapScale) + offsetY ); // Thêm tile vào bản đồ
             
         }
     }
@@ -64,14 +62,17 @@ void Map::LoadMap(string path, int sizeX, int sizeY, int gridWidth) {
             int tileCode = mapData[y][x];
             if (tileCode == 1){
                 Entity& block = manager.addEntity();
-                block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale), tileSize * mapScale);
+                block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale) + offsetY, tileSize * mapScale);
                 block.addGroup(Game::groupColliders);
 
             }
             else if (tileCode == 2){
                 Entity& block = manager.addEntity();
-                block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale), tileSize * mapScale);
+                block.addComponent<ColliderComponent>("terrain", x * (tileSize * mapScale), (y - sizeY) * (tileSize * mapScale) + offsetY, tileSize * mapScale);
                 block.addGroup(Game::groupDangers);
+                // cout << "Danger created at: " 
+                //      << x * (tileSize * mapScale) << ", " 
+                //      << (y - sizeY) * (tileSize * mapScale) + offsetY << endl;
             }
         }
     }

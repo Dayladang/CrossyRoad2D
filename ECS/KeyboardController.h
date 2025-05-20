@@ -117,7 +117,11 @@ public :
                     }
 
                     if (Game::UIwriteName) { // khi màn hình thua mở ra 
-                        if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát màn hình thua
+
+                        auto& tmp = Game::exitWriteName->getComponent<TransformComponent>();
+
+                        if (mouseX >= tmp.position.x + 16 && mouseX <= tmp.position.x + 54 && 
+                            mouseY >= tmp.position.y + 3 && mouseY <= tmp.position.y + 35) { // nằm trong khoảng của dấu thoát màn hình thua
                             Game::exitGameloseDown = true;
                             Game::assets->playSound("click_down", 0);
                         }
@@ -157,13 +161,18 @@ public :
                     }
 
                     if (Game::quitGameUp) {
-                        if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
+
+                        auto& quitPos = Game::quitGame->getComponent<TransformComponent>();
+
+                        if (mouseX >= quitPos.position.x + 177 && mouseX <= quitPos.position.x + 239 &&
+                            mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::quitGameNoDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
-                        else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
+                        else if (mouseX >= quitPos.position.x + 272 && mouseX <= quitPos.position.x + 334 &&
+                                mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) {
 
                             Game::quitGameYesDown = true;
                             Game::assets->playSound("click_down", 0);
@@ -199,7 +208,7 @@ public :
                     int mouseX = ngumouseX + Game::screen.x;// lấy tọa độ chuột trong map
                     int mouseY = ngumouseY + Game::screen.y;
 
-                    //cout << mouseX << " " << mouseY << endl;
+                    // cout << mouseX << " " << mouseY << endl;
 
                     if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp && !Game::UIwriteName) {
                         if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
@@ -215,7 +224,11 @@ public :
                     }
 
                     if (Game::UIwriteName) { // khi màn hình thua mở ra 
-                        if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát màn hình thua
+
+                        auto& tmp = Game::exitWriteName->getComponent<TransformComponent>();
+
+                        if (mouseX >= tmp.position.x + 16 && mouseX <= tmp.position.x + 54 && 
+                            mouseY >= tmp.position.y + 3 && mouseY <= tmp.position.y + 35) { // nằm trong khoảng của dấu thoát màn hình thua
                             
                             Game::exitGameloseDown = false;
                             Game::assets->playSound("click_up", 0);
@@ -266,14 +279,19 @@ public :
                     }
 
                     if (Game::quitGameUp) {
-                        if (mouseX >= 433 && mouseX <= 495 && mouseY >= 778 && mouseY <= 790) { // nằm trong khoảng của dấu thoát leaderboard
+
+                        auto& quitPos = Game::quitGame->getComponent<TransformComponent>();
+
+                        if (mouseX >= quitPos.position.x + 177 && mouseX <= quitPos.position.x + 239 &&
+                            mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) { // nằm trong khoảng của dấu thoát leaderboard
                             
                             Game::quitGameNoDown = false;
                             Game::assets->playSound("click_up", 0);
                             Game::quitGameNoUp = true;
 
                         }
-                        else if (mouseX >= 528 && mouseX <= 590 && mouseY >= 778 && mouseY <= 790) {
+                        else if (mouseX >= quitPos.position.x + 272 && mouseX <= quitPos.position.x + 334 &&
+                                mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) {
 
                             Game::quitGameYesDown = false;
                             Game::assets->playSound("click_up", 0);

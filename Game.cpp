@@ -17,6 +17,9 @@ Manager manager;//6
 SDL_Renderer* Game::renderer = NULL; //5
 SDL_Event Game::event;//9
 
+vector<string> Game::mapList = {"assets/maptile/map1.map", "assets/maptile/map2.map", "assets/maptile/map3.map"};
+vector<string> Game::vehiclesFiles = {"assets/maptile/vehicles.txt", "assets/maptile/vehicles2.txt", "assets/maptile/vehicles3.txt"};
+
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
 
@@ -67,6 +70,19 @@ bool Game::unMutedButtonUp = true; //40
 bool Game::unMutedButtonDown = false; //40
 bool Game::MutedButtonUp = false; //40
 bool Game::MutedButtonDown = false; //40
+
+int currentMapIndex = 0; // Map đang chơi 41
+int lastCurrentMapIndex = 0; // 41
+int Mapcounter = 0; // 41
+
+bool Game::isMap2Loading = false;// 42
+bool Game::resetDone = false;// 42
+float playerY; //42 
+float mapEndY = 0; // Tọa độ cuối của map hiện tại
+int maxY = 0; // giới hạn của camera 42
+float threshold = 250; // Khoảng cách để bắt đầu load map mới
+
+Entity* Game::exitWriteName = NULL; // 42
 
 AssetManager* Game::assets = new AssetManager(&manager);//19 + 23
 
@@ -214,6 +230,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     mutedButton->addComponent<SpriteComponent>("unmuted_up");
 
     //các khung viết chữ
+    exitWriteName = &manager.addEntity();
+    exitWriteName->addComponent<TransformComponent>(0, 0, 256, 256, 1, 0, 0);
     writeScore.addComponent<MiniText>(256, 256, "", "gameover_font", white);
     writeName.addComponent<MiniText>(0, 0, "", "Type_name", white);
     writeName2.addComponent<MiniText>(0, 0, "", "Type_name", white);
@@ -229,7 +247,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap("assets/maptile/map1.map", 64, 32, 8); //14 x = 64 vì trong map1.map có 64 dòng 
+    gameMap->LoadMap(mapList[0], 64, 32, 8, 0); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -248,30 +266,40 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     scoreSystem->setLastPlayerRow(initialRow); 
 
     //lấy phương tiện từ file và thêm các tính năng
-    fstream file("assets/maptile/vehicles.txt", ios::in);
-    if (file.is_open()){
-        string line;
-        while (getline(file, line)){
-            istringstream iss(line); // lấy string từ dòng 
-            int x, y, w, h, scale, veloX, veloY; 
-            string texID;
 
+    loadVehiclesForMap(0);
+
+    //phát âm thanh
+    assets->playMusic("thememusic", -1);
+
+}
+
+void Game::loadVehiclesForMap(int mapIndex) {
+    
+    // Đọc file phương tiện mới
+    fstream file(vehiclesFiles[mapIndex], ios::in);
+    if (file.is_open()) {
+        string line;
+        while (getline(file, line)) {
+            istringstream iss(line);
+            int x, y, w, h, scale, veloX, veloY;
+            string texID;
+            
             iss >> x >> y >> w >> h >> scale >> veloX >> veloY;
             iss >> texID;
-
+            
+            // Điều chỉnh tọa độ y cho map2 nếu cần
+            y -= Mapcounter * 1024; // offset giống như map
+            
             Entity& vehicle = manager.addEntity();
             vehicle.addComponent<TransformComponent>(x, y, w, h, scale, veloX, veloY);
             vehicle.addComponent<SpriteComponent>(texID);
             vehicle.addComponent<ColliderComponent>(texID);
             vehicle.addGroup(groupVehicles);
         }
-
+        
         file.close();
     }
-
-    //phát âm thanh
-    assets->playMusic("thememusic", -1);
-
 }
 
 void Game::handleEvents(){
@@ -370,7 +398,7 @@ void Game::update(){
     }
 
     //mapcollider
-    for (auto& c : colliders){
+    for (auto c : colliders){
         SDL_Rect cCol = c->getComponent<ColliderComponent>().collider; // lấy collider của vật cản 
 
         if (Collision::AABB(cCol, playerCol)){
@@ -382,17 +410,30 @@ void Game::update(){
     screen.x = player.getComponent<TransformComponent>().position.x - WIDTH / 2; // làm cho screen di chuyển theo player
     screen.y = player.getComponent<TransformComponent>().position.y - HEIGHT / 2; 
 
+    // Khai báo chiều cao thực tế của từng map
+    int map1Height = 512;
+    int map2Height = 1024; // Giả sử map2 cao 1024px, điều chỉnh theo kích thước thực tế
+
+    // Tính toán giới hạn dựa trên map hiện tại
+    if (currentMapIndex == 0) {
+        maxY = map1Height;
+    } else if (currentMapIndex == 1) {
+        maxY = -map2Height * (Mapcounter - 1); // Map2 sẽ có chiều cao âm
+    }
+
     if (screen.x < 0) screen.x = 0; // giữ cho screen không di chuyển ra ngoài map
-    if (screen.y < 0) screen.y = 0;
+    // if (screen.y < 0) screen.y = 0;
+    // if (screen.y < minY) screen.y = minY;
     if (screen.x > screen.w) screen.x = screen.w;
-    if (screen.y > screen.h) screen.y = screen.h;
+    // if (screen.y > screen.h) screen.y = screen.h;
+    if (screen.y > maxY) screen.y = maxY;
 
     //ghi điểm số 
     scoreSystem->updateScore(player.getComponent<TransformComponent>().position.y);
     scoreBoard.getComponent<MiniText>().SetLabelText(scoreSystem->getScoreText(), "font");
 
     // bắt sự kiện va chạm
-    for(auto& v : vehicles){
+    for(auto v : vehicles){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, v->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
             assets->playSound("crashsound", 0);
@@ -409,6 +450,9 @@ void Game::update(){
         if (SDL_GetTicks64() - squashStartTime > 1000) {
             player.getComponent<SpriteComponent>().Play("Idle");
             player.getComponent<TransformComponent>().position = {512, 970};
+            currentMapIndex = 0;
+            screen.y = 512;
+            // cout << manager.getGroup(groupMap).size() << endl;
             UIwriteName = true;
             isSquashed = false;
             currentScore = scoreSystem->getScore();
@@ -418,11 +462,13 @@ void Game::update(){
         return; // Không xử lý logic khác khi đang ở trạng thái "bị bẹp"
     }
 
-    for(auto& d : dangers){
+    for(auto d : dangers){
         if (Collision::AABB(player.getComponent<ColliderComponent>().collider, d->getComponent<ColliderComponent>().collider)){
             player.getComponent<TransformComponent>().velocity.Zero();
             assets->playSound("crashsound", 0);
             player.getComponent<TransformComponent>().position = {512, 970};
+            currentMapIndex = 0;
+            screen.y = 512;
             UIwriteName = true;
             currentScore = scoreSystem->getScore();
             isTypingName = true;
@@ -437,21 +483,166 @@ void Game::update(){
         quitGameNoUp = false;
     }
 
+    // Khi phát hiện người chơi đến cuối map
+    playerY = player.getComponent<TransformComponent>().position.y;
+    // Tính mapEndY dựa trên map hiện tại
+    if (currentMapIndex == 0) {
+        mapEndY = 0; // Cuối map1 là y=0
+    } else {
+        mapEndY = Mapcounter * (-1024); // Cuối các map khác
+    }
+
+    if (abs(playerY - mapEndY) < threshold && !isMap2Loading) {
+    
+        if (!isMap2Loading) {
+            isMap2Loading = true;
+
+            Mapcounter++;
+            
+            // Chọn ngẫu nhiên chỉ số map
+            while (currentMapIndex == lastCurrentMapIndex) {
+                currentMapIndex = ( rand() % (mapList.size() - 1) ) + 1; // chọn ngẫu nhiên chỉ số map khác với số trước đó bắt đầu từ 1 đến size() - 1
+            }
+            lastCurrentMapIndex = currentMapIndex;
+            
+            // Load map mới
+            int offsetY = -Mapcounter * 1024; // offset cho map mới
+            gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, offsetY);
+            
+            loadVehiclesForMap(currentMapIndex);
+
+            // Cập nhật các group
+            colliders = manager.getGroup(groupColliders);
+            vehicles = manager.getGroup(groupVehicles);
+            dangers = manager.getGroup(groupDangers);
+            tiles = manager.getGroup(groupMap);
+
+            // for (auto d : dangers) {
+            //     if (d && d->hasComponent<TransformComponent>())
+            //         std::cout << "Danger y: " << d->getComponent<TransformComponent>().position.y << std::endl;
+            // }
+
+            // Quan trọng: Cập nhật ngay lập tức ràng buộc camera cho map2
+            int minY = -map2Height;
+            int maxY = 0;
+
+            // Cập nhật camera để phù hợp với vị trí mới
+            screen.y = player.getComponent<TransformComponent>().position.y - HEIGHT / 2;
+            
+            cout << "Map " << currentMapIndex << " loaded! Player at y = " << player.getComponent<TransformComponent>().position.y << endl;
+        }
+
+        isMap2Loading = false;
+    } 
+
+    // Khi phát hiện người chơi đã di chuyển hoàn toàn vào map2
+    if (screen.y < -HEIGHT - 200 && !resetDone) {
+        resetDone = true;
+        isMap2Loading = false;
+        
+        // cout << "Shifting map1 above map2..." << endl;
+
+        // THÊM: Kiểm tra nếu tọa độ âm quá lớn (ví dụ dưới -10000), reset lại hệ tọa độ
+        if (player.getComponent<TransformComponent>().position.y < -10000) {
+            cout << "Resetting coordinate system..." << endl;
+            
+            // Lưu vị trí tương đối của player trong map hiện tại
+            float relativeY = fmod(player.getComponent<TransformComponent>().position.y, map2Height);
+            if (relativeY > 0) relativeY -= map2Height; // Đảm bảo giữ tọa độ âm
+            
+            // Load lại map2 với offset mới
+            // int offsetY = -Mapcounter * 1024;
+            // gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, offsetY);
+            
+            // Đặt lại vị trí player về tọa độ tương đối
+            player.getComponent<TransformComponent>().position.y = relativeY;
+            
+            return; // Bỏ qua phần dịch chuyển map1
+        }
+        
+        // XÓA TOÀN BỘ ENTITY THUỘC MAP1 (y >= 0)
+        set<Entity*> uniqueEntities;
+
+        for (auto t : tiles)
+            if (t->hasComponent<TransformComponent>() && t->getComponent<TransformComponent>().position.y >= 0)
+                uniqueEntities.insert(t);
+        for (auto v : vehicles)
+            if (v->hasComponent<TransformComponent>() && v->getComponent<TransformComponent>().position.y >= 0)
+                uniqueEntities.insert(v);
+        for (auto c : colliders)
+            if (c->hasComponent<TransformComponent>() && c->getComponent<TransformComponent>().position.y >= 0)
+                uniqueEntities.insert(c);
+        for (auto d : dangers)
+            if (d->hasComponent<TransformComponent>() && d->getComponent<TransformComponent>().position.y >= 0)
+                uniqueEntities.insert(d);
+
+        vector<Entity*> entitiesToDestroy(uniqueEntities.begin(), uniqueEntities.end());
+
+        // cout << "Entities to destroy: " << entitiesToDestroy.size() << endl;
+
+        for (auto e : entitiesToDestroy) {
+            e->destroy();
+            // cout << "Entity " << e << " active after destroy: " << e->isActive() << endl;
+        }
+
+        manager.refresh();
+        entitiesToDestroy.clear();
+        uniqueEntities.clear();
+
+        //load lại map vì vừa mới xóa 
+        int offsetY = -Mapcounter * 1024; // offset cho map mới 
+        gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, offsetY); // Load lại map2 với offset mới
+
+        // cập nhật các group
+        tiles = manager.getGroup(groupMap);
+        vehicles = manager.getGroup(groupVehicles);
+        colliders = manager.getGroup(groupColliders);
+        dangers = manager.getGroup(groupDangers);
+
+        // cout << "Map1 shifted above map2! Player at y = " << player.getComponent<TransformComponent>().position.y << endl;
+    }
+
+    // cout << exitWriteName->getComponent<TransformComponent>().position.x << " "
+    //     << exitWriteName->getComponent<TransformComponent>().position.y << endl;
+
     // cout << "chicken position: (" 
     // << player.getComponent<TransformComponent>().position.x << ", " 
     // << player.getComponent<TransformComponent>().position.y << ")" << endl;
 
+    // Debug để kiểm tra currentMapIndex
+    // cout << "Player pos: " << player.getComponent<TransformComponent>().position.y 
+    //     << ", Camera pos: " << screen.y 
+    //     << ", maxY: " << maxY 
+    //     << ", MapIndex: " << currentMapIndex << endl;
+
 }
 
-void Game::render(){   
+void Game::render(){  
+    try{ 
     SDL_RenderClear(renderer); // ve map trc roi moi den nhan vat//5
 
-    for (auto& t : tiles) t->draw();
+    for (auto t : tiles) {
+        if (t && t->isActive()) {  // Kiểm tra an toàn
+            t->draw();
+        }
+    }
     //for (auto& c : colliders) c->draw();
 
-    for (auto& v : vehicles) v->draw();
-    for (auto& d : dangers) d->draw();
-    for (auto& p : players) p->draw(); 
+    for (auto v : vehicles){
+        if (v && v->isActive()) {  // Kiểm tra an toàn
+            v->draw();
+        }
+    }
+    for (auto d : dangers) {
+        if (d && d->isActive()) {  // Kiểm tra an toàn
+            d->draw();
+        }
+    }
+    for (auto p : players) {
+        if (p && p->isActive()) {  // Kiểm tra an toàn
+            p->draw();
+        }
+    }
     
     if (playButtonClickedUp) { 
         scoreBoard.draw(); // Score text
@@ -477,6 +668,26 @@ void Game::render(){
     
     // vẽ button khi chưa thả nút ra  
     if (!playButtonClickedUp && !LeaderBoardButtonUp) {
+
+        // Cập nhật vị trí các nút theo camera (giống cách làm của PauseButton)
+        // Đặt các nút ở dưới màn hình
+        const int buttonMargin = 20; // Khoảng cách từ đáy màn hình
+        
+        // Nút Play ở giữa dưới
+        auto& playPos = playButton->getComponent<TransformComponent>();
+        playPos.position.x = screen.x + (WIDTH - playPos.width) / 2;
+        playPos.position.y = screen.y + HEIGHT - playPos.height - buttonMargin;
+        
+        // Nút Leaderboard ở bên trái của Play
+        auto& lbPos = LeaderBoardButton->getComponent<TransformComponent>();
+        lbPos.position.x = screen.x + (WIDTH - lbPos.width) / 2 - 100;
+        lbPos.position.y = screen.y + HEIGHT - lbPos.height - buttonMargin;
+        
+        // Nút Mute ở bên phải của Play
+        auto& mutePos = mutedButton->getComponent<TransformComponent>();
+        mutePos.position.x = screen.x + (WIDTH - mutePos.width) / 2 + 100;
+        mutePos.position.y = screen.y + HEIGHT - mutePos.height - buttonMargin;
+
         //vẽ nút play
         if (playButtonClickedDown) { // nếu nút được bấm
             playButton->getComponent<SpriteComponent>().setTex("play_button_clicked");
@@ -516,6 +727,13 @@ void Game::render(){
         
         int imgW = 300, imgH = 325;
         SDL_Rect dstRect = {(WIDTH - imgW) / 2, (HEIGHT - imgH) / 2, imgW, imgH};
+
+        // Cập nhật vị trí của exitWriteName entity
+        auto& exitPos = exitWriteName->getComponent<TransformComponent>();
+        exitPos.position.x = screen.x + dstRect.x;
+        exitPos.position.y = screen.y + dstRect.y;
+        exitPos.width = dstRect.w;
+        exitPos.height = dstRect.h;
 
         writeScore.getComponent<MiniText>().SetLabelText(to_string(currentScore), "gameover_font");
         writeScore.getComponent<MiniText>().drawWithBackground(dstRect.x, dstRect.y, imgW, imgH, tmp);
@@ -594,9 +812,23 @@ void Game::render(){
 
         int texW, texH;
         SDL_QueryTexture(tmp, NULL, NULL, &texW, &texH);
-
         SDL_Rect dstRect = {(WIDTH - texW) / 2, (HEIGHT - texH) / 2, texW, texH};
+
+        // Cập nhật vị trí của quitGame entity
+        auto& qs = quitGame->getComponent<TransformComponent>();
+        qs.position.x = screen.x + dstRect.x;
+        qs.position.y = screen.y + dstRect.y;
+        qs.width = dstRect.w;
+        qs.height = dstRect.h;
+
         SDL_RenderCopy(renderer, tmp, NULL, &dstRect); 
+    }
+    }
+    catch (const exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+    catch (...) {
+        cout << "Unknown exception during render!" << endl;
     }
 
     SDL_RenderPresent(renderer);
@@ -617,18 +849,91 @@ void Game::resetGame() {
     quitGameUp = false;
     quitGameYesUp = false;
     quitGameNoUp = false;
- 
-    // reset vị trí của logo
-    logoPositionX = (1024 - 200) / 2;
-    if (logo.hasComponent<TransformComponent>()) {
-        logo.getComponent<TransformComponent>().position.x = logoPositionX;
-        logo.getComponent<TransformComponent>().position.y = 700;
-        logo.getComponent<TransformComponent>().velocity.Zero();
+    lastCurrentMapIndex = currentMapIndex = 0;
+    isMap2Loading = false;
+    resetDone = false;
+    Mapcounter = 0;
+    maxY = 512;
+
+    try {
+        // load lại map1
+        set<Entity*> uniqueEntities;
+
+        // cout << "Before destroy - Tiles count: " << tiles.size() << endl;
+            
+        // Thu thập, không hủy ngay
+        for (auto t : tiles) uniqueEntities.insert(t);
+        for (auto v : vehicles) uniqueEntities.insert(v);
+        for (auto c : colliders) uniqueEntities.insert(c);
+        for (auto d : dangers) uniqueEntities.insert(d);
+
+        vector<Entity*> entitiesToDestroy(uniqueEntities.begin(), uniqueEntities.end());
+            
+        for (auto e : entitiesToDestroy) {
+            if (
+                e != &player &&
+                e != &logo &&
+                e != playButton &&
+                e != PauseButton &&
+                e != LeaderBoardButton &&
+                e != mutedButton &&
+                e != exitWriteName &&
+                e != quitGame &&
+                e->isActive()
+            ) {
+                e->destroy();
+            }
+        }   
+
+        manager.refresh();
+
+        entitiesToDestroy.clear();
+        uniqueEntities.clear();
+        tiles.clear(); // <-- QUAN TRỌNG
+        vehicles.clear();
+        colliders.clear();
+        dangers.clear();
+
+        // cout << "After refresh - Tiles count: " << manager.getGroup(groupMap).size() << endl;
+
+        gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, 0);
+
+        loadVehiclesForMap(currentMapIndex);
+
+        // cout << "After load - Tiles count: " << manager.getGroup(groupMap).size() << endl;
+       
+        // cập nhật lại các group
+        tiles = manager.getGroup(groupMap);
+        vehicles = manager.getGroup(groupVehicles);
+        colliders = manager.getGroup(groupColliders);
+        dangers = manager.getGroup(groupDangers);
+
+        player.getComponent<TransformComponent>().position = {512, 970};
+        
+        // reset vị trí camera
+        screen.x = player.getComponent<TransformComponent>().position.x - WIDTH / 2; // làm cho screen di chuyển theo player
+        screen.y = player.getComponent<TransformComponent>().position.y - HEIGHT / 2;
+
+        // cout << "screen placed at : " << screen.x << " " << screen.y << endl;
+    
+        // reset vị trí của logo
+        logoPositionX = (1024 - 200) / 2;
+        if (logo.hasComponent<TransformComponent>()) {
+            logo.getComponent<TransformComponent>().position.x = logoPositionX;
+            logo.getComponent<TransformComponent>().position.y = 700;
+            logo.getComponent<TransformComponent>().velocity.Zero();
+        }
+    
+        // phát lại nhạc
+        assets->pauseMusic();
+        assets->playMusic("thememusic", -1);
     }
- 
-    // phát lại nhạc
-    assets->pauseMusic();
-    assets->playMusic("thememusic", -1);
+    catch (const exception& e) {
+        cout << "Error: " << e.what() << endl;
+    }
+    catch (...) {
+        cout << "Unknown exception during reset!" << endl;
+    }
 }
 
 void Game::quit(){
