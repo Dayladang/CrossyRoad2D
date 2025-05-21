@@ -27,10 +27,6 @@ public:
     Game();
     ~Game();
 
-    static vector<string> mapList;
-    static vector<string> vehiclesFiles;
-    static void loadVehiclesForMap(int mapIndex);
-
     void initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE);
     void handleEvents();
     void update();
@@ -90,7 +86,11 @@ public:
     static bool MutedButtonDown;
 
     static bool isMap2Loading;
-    static bool resetDone; // kiểm tra xem đã reset map 2 chưa
+    static bool resetDone; // kiểm tra xem đã reset map mới chưa
+    static vector<string> mapList;
+    static vector<string> vehiclesFiles;
+    static int Mapcounter; // biến đếm map, dùng để load map mới
+    static int currentMapIndex; // biến chỉ số map hiện tại
     
     static Entity* exitWriteName;
 

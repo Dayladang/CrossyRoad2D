@@ -17,8 +17,7 @@ Manager manager;//6
 SDL_Renderer* Game::renderer = NULL; //5
 SDL_Event Game::event;//9
 
-vector<string> Game::mapList = {"assets/maptile/map1.map", "assets/maptile/map2.map", "assets/maptile/map3.map"};
-vector<string> Game::vehiclesFiles = {"assets/maptile/vehicles.txt", "assets/maptile/vehicles2.txt", "assets/maptile/vehicles3.txt"};
+
 
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
@@ -71,16 +70,14 @@ bool Game::unMutedButtonDown = false; //40
 bool Game::MutedButtonUp = false; //40
 bool Game::MutedButtonDown = false; //40
 
-int currentMapIndex = 0; // Map đang chơi 41
+vector<string> Game::mapList = {"assets/maptile/map1.map", "assets/maptile/map2.map", "assets/maptile/map3.map"};
+vector<string> Game::vehiclesFiles = {"assets/maptile/vehicles.txt", "assets/maptile/vehicles2.txt", "assets/maptile/vehicles3.txt"};
+int Game::currentMapIndex = 0; // Map đang chơi 41
 int lastCurrentMapIndex = 0; // 41
-int Mapcounter = 0; // 41
-
+int Game::Mapcounter = 0; // 41
 bool Game::isMap2Loading = false;// 42
 bool Game::resetDone = false;// 42
-float playerY; //42 
-float mapEndY = 0; // Tọa độ cuối của map hiện tại
 int maxY = 0; // giới hạn của camera 42
-float threshold = 250; // Khoảng cách để bắt đầu load map mới
 
 Entity* Game::exitWriteName = NULL; // 42
 
@@ -267,39 +264,11 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //lấy phương tiện từ file và thêm các tính năng
 
-    loadVehiclesForMap(0);
+    gameMap->loadVehiclesForMap(0);
 
     //phát âm thanh
     assets->playMusic("thememusic", -1);
 
-}
-
-void Game::loadVehiclesForMap(int mapIndex) {
-    
-    // Đọc file phương tiện mới
-    fstream file(vehiclesFiles[mapIndex], ios::in);
-    if (file.is_open()) {
-        string line;
-        while (getline(file, line)) {
-            istringstream iss(line);
-            int x, y, w, h, scale, veloX, veloY;
-            string texID;
-            
-            iss >> x >> y >> w >> h >> scale >> veloX >> veloY;
-            iss >> texID;
-            
-            // Điều chỉnh tọa độ y cho map2 nếu cần
-            y -= Mapcounter * 1024; // offset giống như map
-            
-            Entity& vehicle = manager.addEntity();
-            vehicle.addComponent<TransformComponent>(x, y, w, h, scale, veloX, veloY);
-            vehicle.addComponent<SpriteComponent>(texID);
-            vehicle.addComponent<ColliderComponent>(texID);
-            vehicle.addGroup(groupVehicles);
-        }
-        
-        file.close();
-    }
 }
 
 void Game::handleEvents(){
@@ -418,14 +387,11 @@ void Game::update(){
     if (currentMapIndex == 0) {
         maxY = map1Height;
     } else if (currentMapIndex == 1) {
-        maxY = -map2Height * (Mapcounter - 1); // Map2 sẽ có chiều cao âm
+        maxY = -map2Height * (Mapcounter - 1); // các Map mới sẽ có chiều cao âm
     }
 
     if (screen.x < 0) screen.x = 0; // giữ cho screen không di chuyển ra ngoài map
-    // if (screen.y < 0) screen.y = 0;
-    // if (screen.y < minY) screen.y = minY;
     if (screen.x > screen.w) screen.x = screen.w;
-    // if (screen.y > screen.h) screen.y = screen.h;
     if (screen.y > maxY) screen.y = maxY;
 
     //ghi điểm số 
@@ -484,14 +450,16 @@ void Game::update(){
     }
 
     // Khi phát hiện người chơi đến cuối map
-    playerY = player.getComponent<TransformComponent>().position.y;
+    int playerY = player.getComponent<TransformComponent>().position.y;
     // Tính mapEndY dựa trên map hiện tại
+    int mapEndY; // Tọa độ cuối của map hiện tại
     if (currentMapIndex == 0) {
         mapEndY = 0; // Cuối map1 là y=0
     } else {
         mapEndY = Mapcounter * (-1024); // Cuối các map khác
     }
 
+    int threshold = 250; // Khoảng cách để bắt đầu load map mới
     if (abs(playerY - mapEndY) < threshold && !isMap2Loading) {
     
         if (!isMap2Loading) {
@@ -509,7 +477,7 @@ void Game::update(){
             int offsetY = -Mapcounter * 1024; // offset cho map mới
             gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, offsetY);
             
-            loadVehiclesForMap(currentMapIndex);
+            gameMap->loadVehiclesForMap(currentMapIndex);
 
             // Cập nhật các group
             colliders = manager.getGroup(groupColliders);
@@ -898,7 +866,7 @@ void Game::resetGame() {
 
         gameMap->LoadMap(mapList[currentMapIndex], 64, 32, 8, 0);
 
-        loadVehiclesForMap(currentMapIndex);
+        gameMap->loadVehiclesForMap(currentMapIndex);
 
         // cout << "After load - Tiles count: " << manager.getGroup(groupMap).size() << endl;
        

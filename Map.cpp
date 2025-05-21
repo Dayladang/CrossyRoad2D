@@ -83,3 +83,31 @@ void Map::AddTile(int srcX, int srcY, int xpos, int ypos){ //18
     Map.addComponent<TileComponent>(srcX, srcY, xpos, ypos, tileSize, mapScale, texID);
     Map.addGroup(Game::groupMap);
 }
+
+void Map::loadVehiclesForMap(int mapIndex) {
+    
+    // Đọc file phương tiện mới
+    fstream file(Game::vehiclesFiles[mapIndex], ios::in);
+    if (file.is_open()) {
+        string line;
+        while (getline(file, line)) {
+            istringstream iss(line);
+            int x, y, w, h, scale, veloX, veloY;
+            string texID;
+            
+            iss >> x >> y >> w >> h >> scale >> veloX >> veloY;
+            iss >> texID;
+            
+            // Điều chỉnh tọa độ y cho map2 nếu cần
+            y -= Game::Mapcounter * 1024; // offset giống như map
+            
+            Entity& vehicle = manager.addEntity();
+            vehicle.addComponent<TransformComponent>(x, y, w, h, scale, veloX, veloY);
+            vehicle.addComponent<SpriteComponent>(texID);
+            vehicle.addComponent<ColliderComponent>(texID);
+            vehicle.addGroup(Game::groupVehicles);
+        }
+        
+        file.close();
+    }
+}
