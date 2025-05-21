@@ -5,6 +5,7 @@
 #include "ECS.h"
 #include "Components.h"
 #include "../ScoreSystem.h"
+#include "../ButtonManager.h"
 
 class KeyboardController : public Component {
 
@@ -25,13 +26,13 @@ public :
             } 
 
             else if ( Game::event.type == SDL_QUIT) {
-                Game::quitGameUp = true;
+                ButtonManager::quitGameUp = true;
                 Game::assets->playSound("click_down", 0);
             }
 
             else if ( Game::event.type == SDL_KEYDOWN ){
 
-                if (Game::UIwriteName || Game::isPausedUp) {
+                if (Game::UIwriteName || ButtonManager::isPausedUp) {
 
                     const Uint8* check = SDL_GetKeyboardState(NULL);
 
@@ -49,11 +50,11 @@ public :
                     const Uint8* check = SDL_GetKeyboardState(NULL);
 
                     if (check[SDL_SCANCODE_ESCAPE]) {
-                        if (Game::quitGameUp) Game::quitGameUp = false; //nếu đang trong màn hình quit thì bấm esc phát nữa để thoát màn hình quit
-                        else Game::quitGameUp = true;
+                        if (ButtonManager::quitGameUp) ButtonManager::quitGameUp = false; //nếu đang trong màn hình quit thì bấm esc phát nữa để thoát màn hình quit
+                        else ButtonManager::quitGameUp = true;
                     }
 
-                    if (!Game::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
+                    if (!ButtonManager::playButtonClickedUp) return ; // nếu chưa bấm nút chơi thì chưa được di chuyển return luôn vì vẫn phải bắt chuột để nhấn chơi nên làm thế này              
 
                     if (check[SDL_SCANCODE_W]) {
                         transform->velocity.y = -1;
@@ -83,7 +84,7 @@ public :
 
             else if ( Game::event.type == SDL_KEYUP ){
 
-                if (!Game::playButtonClickedUp) return ;
+                if (!ButtonManager::playButtonClickedUp) return ;
                 
                 const Uint8* check = SDL_GetKeyboardState(NULL);
                 
@@ -104,13 +105,13 @@ public :
 
                     // cout << mouseX << " " << mouseY << endl;
 
-                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp && !Game::UIwriteName) {
-                        if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::LeaderBoardButtonUp && !ButtonManager::playButtonClickedUp && !Game::UIwriteName) {
+                        if (mouseX >= ButtonManager::playButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::playButton->getComponent<TransformComponent>().position.x + ButtonManager::playButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::playButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::playButton->getComponent<TransformComponent>().position.y + ButtonManager::playButton->getComponent<TransformComponent>().height) {
 
-                            Game::playButtonClickedDown = true;
+                            ButtonManager::playButtonClickedDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
@@ -122,75 +123,75 @@ public :
 
                         if (mouseX >= tmp.position.x + 16 && mouseX <= tmp.position.x + 54 && 
                             mouseY >= tmp.position.y + 3 && mouseY <= tmp.position.y + 35) { // nằm trong khoảng của dấu thoát màn hình thua
-                            Game::exitGameloseDown = true;
+                            ButtonManager::exitGameloseDown = true;
                             Game::assets->playSound("click_down", 0);
                         }
                     }
 
-                    if (Game::LeaderBoardButtonUp) {
+                    if (ButtonManager::LeaderBoardButtonUp) {
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
                             
-                            Game::exitLeaderBoardDown = true;
+                            ButtonManager::exitLeaderBoardDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
                     }
 
-                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp) {
-                        if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::LeaderBoardButtonUp && !ButtonManager::playButtonClickedUp) {
+                        if (mouseX >= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.x + ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.y + ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().height) {
 
-                            Game::LeaderBoardButtonDown = true;
+                            ButtonManager::LeaderBoardButtonDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
                     }
 
-                    if (Game::playButtonClickedUp && !Game::quitGameUp && !Game::UIwriteName && !Game::LeaderBoardButtonUp) {
-                        if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
+                    if (ButtonManager::playButtonClickedUp && !ButtonManager::quitGameUp && !Game::UIwriteName && !ButtonManager::LeaderBoardButtonUp) {
+                        if (mouseX >= ButtonManager::PauseButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::PauseButton->getComponent<TransformComponent>().position.x + ButtonManager::PauseButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::PauseButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::PauseButton->getComponent<TransformComponent>().position.y + ButtonManager::PauseButton->getComponent<TransformComponent>().height) {
 
-                            Game::isPausedDown = true;
+                            ButtonManager::isPausedDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
                     }
 
-                    if (Game::quitGameUp) {
+                    if (ButtonManager::quitGameUp) {
 
-                        auto& quitPos = Game::quitGame->getComponent<TransformComponent>();
+                        auto& quitPos = ButtonManager::quitGame->getComponent<TransformComponent>();
 
                         if (mouseX >= quitPos.position.x + 177 && mouseX <= quitPos.position.x + 239 &&
                             mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) { // nằm trong khoảng của dấu thoát leaderboard
                             
-                            Game::quitGameNoDown = true;
+                            ButtonManager::quitGameNoDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
                         else if (mouseX >= quitPos.position.x + 272 && mouseX <= quitPos.position.x + 334 &&
                                 mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) {
 
-                            Game::quitGameYesDown = true;
+                            ButtonManager::quitGameYesDown = true;
                             Game::assets->playSound("click_down", 0);
 
                         }
                     }
 
-                    if (!Game::playButtonClickedUp) {
-                        if (mouseX >= Game::mutedButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::mutedButton->getComponent<TransformComponent>().position.x + Game::mutedButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::mutedButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::mutedButton->getComponent<TransformComponent>().position.y + Game::mutedButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::playButtonClickedUp) {
+                        if (mouseX >= ButtonManager::mutedButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::mutedButton->getComponent<TransformComponent>().position.x + ButtonManager::mutedButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::mutedButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::mutedButton->getComponent<TransformComponent>().position.y + ButtonManager::mutedButton->getComponent<TransformComponent>().height) {
 
-                            if (Game::MutedButtonUp) {
-                                Game::MutedButtonDown = true;
+                            if (ButtonManager::MutedButtonUp) {
+                                ButtonManager::MutedButtonDown = true;
                             }
-                            else if (Game::unMutedButtonUp) {
-                                Game::unMutedButtonDown = true;
+                            else if (ButtonManager::unMutedButtonUp) {
+                                ButtonManager::unMutedButtonDown = true;
                             }
                             Game::assets->playSound("click_down", 0);
 
@@ -210,15 +211,15 @@ public :
 
                     // cout << mouseX << " " << mouseY << endl;
 
-                    if (!Game::LeaderBoardButtonUp && !Game::playButtonClickedUp && !Game::UIwriteName) {
-                        if (mouseX >= Game::playButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::playButton->getComponent<TransformComponent>().position.x + Game::playButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::playButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::playButton->getComponent<TransformComponent>().position.y + Game::playButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::LeaderBoardButtonUp && !ButtonManager::playButtonClickedUp && !Game::UIwriteName) {
+                        if (mouseX >= ButtonManager::playButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::playButton->getComponent<TransformComponent>().position.x + ButtonManager::playButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::playButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::playButton->getComponent<TransformComponent>().position.y + ButtonManager::playButton->getComponent<TransformComponent>().height) {
 
-                            Game::playButtonClickedDown = false;
+                            ButtonManager::playButtonClickedDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::playButtonClickedUp = true; // that nút ra thì bắt đầu game
+                            ButtonManager::playButtonClickedUp = true; // that nút ra thì bắt đầu game
 
                         }
                     }
@@ -230,91 +231,91 @@ public :
                         if (mouseX >= tmp.position.x + 16 && mouseX <= tmp.position.x + 54 && 
                             mouseY >= tmp.position.y + 3 && mouseY <= tmp.position.y + 35) { // nằm trong khoảng của dấu thoát màn hình thua
                             
-                            Game::exitGameloseDown = false;
+                            ButtonManager::exitGameloseDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::exitGameloseUp = true;
+                            ButtonManager::exitGameloseUp = true;
                             Game::resetGame(); // reset game khi thả nút thoát màn hình thua
 
                         }
                     }
 
-                    if (Game::LeaderBoardButtonUp) {
+                    if (ButtonManager::LeaderBoardButtonUp) {
                         if (mouseX >= 378 && mouseX <= 418 && mouseY >= 607 && mouseY <= 642) { // nằm trong khoảng của dấu thoát leaderboard
                             
-                            Game::exitLeaderBoardDown = false;
+                            ButtonManager::exitLeaderBoardDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::exitLeaderBoardUp = true;
+                            ButtonManager::exitLeaderBoardUp = true;
 
-                            Game::playButtonClickedUp = false; //reset lại trạng thái nút chơi chưa được bấm
-                            Game::LeaderBoardButtonUp = false; 
-                            Game::exitLeaderBoardUp = false; // reset lại trạng thái nút hiện leaderboard chưa được bấm
+                            ButtonManager::playButtonClickedUp = false; //reset lại trạng thái nút chơi chưa được bấm
+                            ButtonManager::LeaderBoardButtonUp = false; 
+                            ButtonManager::exitLeaderBoardUp = false; // reset lại trạng thái nút hiện leaderboard chưa được bấm
 
                         }
                     }
 
-                    if (!Game::playButtonClickedUp && !Game::playButtonClickedUp) {
-                        if (mouseX >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.x + Game::LeaderBoardButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::LeaderBoardButton->getComponent<TransformComponent>().position.y + Game::LeaderBoardButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::playButtonClickedUp && !ButtonManager::playButtonClickedUp) {
+                        if (mouseX >= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.x + ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().position.y + ButtonManager::LeaderBoardButton->getComponent<TransformComponent>().height) {
 
-                            Game::LeaderBoardButtonDown = false;
+                            ButtonManager::LeaderBoardButtonDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::LeaderBoardButtonUp = true;
+                            ButtonManager::LeaderBoardButtonUp = true;
 
                         }
                     }
 
-                    if (Game::playButtonClickedUp && !Game::quitGameUp && !Game::UIwriteName && !Game::LeaderBoardButtonUp) {
-                        if (mouseX >= Game::PauseButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::PauseButton->getComponent<TransformComponent>().position.x + Game::PauseButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::PauseButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::PauseButton->getComponent<TransformComponent>().position.y + Game::PauseButton->getComponent<TransformComponent>().height) {
+                    if (ButtonManager::playButtonClickedUp && !ButtonManager::quitGameUp && !Game::UIwriteName && !ButtonManager::LeaderBoardButtonUp) {
+                        if (mouseX >= ButtonManager::PauseButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::PauseButton->getComponent<TransformComponent>().position.x + ButtonManager::PauseButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::PauseButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::PauseButton->getComponent<TransformComponent>().position.y + ButtonManager::PauseButton->getComponent<TransformComponent>().height) {
 
-                            Game::isPausedDown = false;
+                            ButtonManager::isPausedDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::isPausedUp = true;
+                            ButtonManager::isPausedUp = true;
 
                         }
                     }
 
-                    if (Game::quitGameUp) {
+                    if (ButtonManager::quitGameUp) {
 
-                        auto& quitPos = Game::quitGame->getComponent<TransformComponent>();
+                        auto& quitPos = ButtonManager::quitGame->getComponent<TransformComponent>();
 
                         if (mouseX >= quitPos.position.x + 177 && mouseX <= quitPos.position.x + 239 &&
                             mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) { // nằm trong khoảng của dấu thoát leaderboard
                             
-                            Game::quitGameNoDown = false;
+                            ButtonManager::quitGameNoDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::quitGameNoUp = true;
+                            ButtonManager::quitGameNoUp = true;
 
                         }
                         else if (mouseX >= quitPos.position.x + 272 && mouseX <= quitPos.position.x + 334 &&
                                 mouseY >= quitPos.position.y + 50 && mouseY <= quitPos.position.y + 62) {
 
-                            Game::quitGameYesDown = false;
+                            ButtonManager::quitGameYesDown = false;
                             Game::assets->playSound("click_up", 0);
-                            Game::quitGameYesUp = true;
+                            ButtonManager::quitGameYesUp = true;
 
                         }
                     }
 
-                    if (!Game::playButtonClickedUp) {
-                        if (mouseX >= Game::mutedButton->getComponent<TransformComponent>().position.x &&
-                        mouseX <= Game::mutedButton->getComponent<TransformComponent>().position.x + Game::mutedButton->getComponent<TransformComponent>().width &&
-                        mouseY >= Game::mutedButton->getComponent<TransformComponent>().position.y &&
-                        mouseY <= Game::mutedButton->getComponent<TransformComponent>().position.y + Game::mutedButton->getComponent<TransformComponent>().height) {
+                    if (!ButtonManager::playButtonClickedUp) {
+                        if (mouseX >= ButtonManager::mutedButton->getComponent<TransformComponent>().position.x &&
+                        mouseX <= ButtonManager::mutedButton->getComponent<TransformComponent>().position.x + ButtonManager::mutedButton->getComponent<TransformComponent>().width &&
+                        mouseY >= ButtonManager::mutedButton->getComponent<TransformComponent>().position.y &&
+                        mouseY <= ButtonManager::mutedButton->getComponent<TransformComponent>().position.y + ButtonManager::mutedButton->getComponent<TransformComponent>().height) {
                             
-                            if (Game::MutedButtonUp) {
-                                Game::MutedButtonDown = false;
-                                Game::unMutedButtonUp = true;
-                                Game::MutedButtonUp = false;
+                            if (ButtonManager::MutedButtonUp) {
+                                ButtonManager::MutedButtonDown = false;
+                                ButtonManager::unMutedButtonUp = true;
+                                ButtonManager::MutedButtonUp = false;
                             }
-                            else if (Game::unMutedButtonUp){
-                                Game::unMutedButtonDown = false;
-                                Game::MutedButtonUp = true;
-                                Game::unMutedButtonUp = false;
+                            else if (ButtonManager::unMutedButtonUp){
+                                ButtonManager::unMutedButtonDown = false;
+                                ButtonManager::MutedButtonUp = true;
+                                ButtonManager::unMutedButtonUp = false;
                             }
                             Game::assets->playSound("click_up", 0);
 
@@ -324,7 +325,7 @@ public :
             }
 
             else if (Game::event.type == SDL_TEXTINPUT) {
-                if (Game::UIwriteName && !Game::exitGameloseUp) {
+                if (Game::UIwriteName && !ButtonManager::exitGameloseUp) {
 
                     char c = Game::event.text.text[0]; //lấy kí tự vừa nhập vào
 

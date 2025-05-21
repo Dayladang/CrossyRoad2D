@@ -35,6 +35,7 @@
                 "ScoreSystem.cpp",
                 "Vector2D.cpp",
                 "ECS/ECS.cpp",
+                "ButtonManager.cpp",
                 "-o",
                 "${fileDirname}\\CrossyRoad.exe",
                 "-Isrc/include",

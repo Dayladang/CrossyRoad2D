@@ -4,8 +4,7 @@
 #include "Vector2D.h"//8
 #include "Collision.h"//10
 #include "ECS/ECS.h" // 16
-// #include "AssetManager.h" //19 + 23
-// #include "ScoreSystem.h" // 27
+#include "ButtonManager.h"
 
 using namespace std;
 
@@ -17,7 +16,7 @@ Manager manager;//6
 SDL_Renderer* Game::renderer = NULL; //5
 SDL_Event Game::event;//9
 
-
+ButtonManager* Button = new ButtonManager(); // 43
 
 //camera 
 SDL_Rect Game::screen = {0, 0, WIDTH, HEIGHT}; //17
@@ -32,43 +31,43 @@ int Game::currentScore = 0;// 33
 bool Game::isSquashed = false; //26
 Uint32 squashStartTime = 0; // 25
 
-bool Game::playButtonClickedUp = false; // 28
-bool Game::playButtonClickedDown = false; //32
-Entity* Game::playButton = NULL;// 28
+bool ButtonManager::playButtonClickedUp = false; // 28
+bool ButtonManager::playButtonClickedDown = false; //32
+Entity* ButtonManager::playButton = NULL;// 28
 int logoPositionX = (1024 - 200) / 2 ; //29
 
 bool Game::isLogoActive = true; // 31
 
-bool Game::exitGameloseUp = false; // 32
-bool Game::exitGameloseDown = false; // 32
+bool ButtonManager::exitGameloseUp = false; // 32
+bool ButtonManager::exitGameloseDown = false; // 32
 
 bool Game::UIwriteName = false;// 30
 string Game::playerName = ""; // 34
 bool Game::isTypingName = false; // 34
 
-bool Game::LeaderBoardButtonUp = false;// 37
-bool Game::LeaderBoardButtonDown = false; // 37
-bool Game::exitLeaderBoardUp = false;// 34
-bool Game::exitLeaderBoardDown = false; // 37
-Entity* Game::LeaderBoardButton = NULL; // 37
+bool ButtonManager::LeaderBoardButtonUp = false;// 37
+bool ButtonManager::LeaderBoardButtonDown = false; // 37
+bool ButtonManager::exitLeaderBoardUp = false;// 34
+bool ButtonManager::exitLeaderBoardDown = false; // 37
+Entity* ButtonManager::LeaderBoardButton = NULL; // 37
 
-bool Game::isPausedUp = false; // 38
-bool Game::isPausedDown = false; //38
-Entity* Game::PauseButton = NULL; //38
-Entity* Game::PauseScreen = NULL; //38
+bool ButtonManager::isPausedUp = false; // 38
+bool ButtonManager::isPausedDown = false; //38
+Entity* ButtonManager::PauseButton = NULL; //38
+Entity* ButtonManager::PauseScreen = NULL; //38
 
-Entity* Game::quitGame = NULL; //39
-bool Game::quitGameUp = false;//39
-bool Game::quitGameYesUp = false;//39
-bool Game::quitGameYesDown = false; //39
-bool Game::quitGameNoUp = false;//39
-bool Game::quitGameNoDown = false;// 39
+Entity* ButtonManager::quitGame = NULL; //39
+bool ButtonManager::quitGameUp = false;//39
+bool ButtonManager::quitGameYesUp = false;//39
+bool ButtonManager::quitGameYesDown = false; //39
+bool ButtonManager::quitGameNoUp = false;//39
+bool ButtonManager::quitGameNoDown = false;// 39
 
-Entity* Game::mutedButton = NULL; // 40
-bool Game::unMutedButtonUp = true; //40
-bool Game::unMutedButtonDown = false; //40
-bool Game::MutedButtonUp = false; //40
-bool Game::MutedButtonDown = false; //40
+Entity* ButtonManager::mutedButton = NULL; // 40
+bool ButtonManager::unMutedButtonUp = true; //40
+bool ButtonManager::unMutedButtonDown = false; //40
+bool ButtonManager::MutedButtonUp = false; //40
+bool ButtonManager::MutedButtonDown = false; //40
 
 vector<string> Game::mapList = {"assets/maptile/map1.map", "assets/maptile/map2.map", "assets/maptile/map3.map"};
 vector<string> Game::vehiclesFiles = {"assets/maptile/vehicles.txt", "assets/maptile/vehicles2.txt", "assets/maptile/vehicles3.txt"};
@@ -188,43 +187,8 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     logo.addComponent<TransformComponent>(logoPositionX, 700, 200, 92, 1, 0, 0);
     logo.addComponent<SpriteComponent>("logo");
 
-    //thêm nút chơi
-    assets->AddTexture("play_button", "assets/images/Play_Button.png");
-    assets->AddTexture("play_button_clicked", "assets/images/PLay_Button_Clicked.png");
-    playButton = &manager.addEntity(); //28
-    playButton->addComponent<TransformComponent>((1024 - 100) / 2, 970, 100, 41, 1, 0, 0); 
-    playButton->addComponent<SpriteComponent>("play_button");
-
-    //thêm nút leaderboard
-    assets->AddTexture("leaderboard_button", "assets/images/leaderboard_button.png");
-    assets->AddTexture("leaderboard_button_clicked", "assets/images/leaderboard_button_clicked.png");
-    LeaderBoardButton = &manager.addEntity();
-    LeaderBoardButton->addComponent<TransformComponent>((1024 - 50) / 2 - 100, 970, 50, 41, 1, 0, 0);
-    LeaderBoardButton->addComponent<SpriteComponent>("leaderboard_button"); 
-
-    //thêm nút pause
-    assets->AddTexture("pause_button", "assets/images/pause_button.png");
-    assets->AddTexture("pause_button_clicked", "assets/images/pause_button_clicked.png");
-    PauseButton = &manager.addEntity(); 
-    PauseButton->addComponent<TransformComponent>(0, 0, 40, 40, 1, 0, 0);
-    PauseButton->addComponent<SpriteComponent>("pause_button");
-
-    assets->AddTexture("pause_screen", "assets/images/pause_screen.png");
-    assets->AddTexture("pause_screen1", "assets/images/pause_screen1.png");
-    assets->AddTexture("pause_screen2", "assets/images/pause_screen2.png");
-    assets->AddTexture("pause_screen3", "assets/images/pause_screen3.png");
-    PauseScreen = &manager.addEntity();
-    PauseScreen->addComponent<TransformComponent>(0, 0, 50, 50, 1, 0, 0);
-    PauseScreen->addComponent<SpriteComponent>("pause_screen");
-
-    //thêm nút mute
-    mutedButton = &manager.addEntity();
-    assets->AddTexture("unmuted_up", "assets/images/unmuted_button.png");
-    assets->AddTexture("unmuted_down", "assets/images/unmuted_button_clicked.png");
-    assets->AddTexture("muted_up", "assets/images/muted_button.png");
-    assets->AddTexture("muted_down", "assets/images/muted_button_clicked.png");
-    mutedButton->addComponent<TransformComponent>((1024 - 50) / 2 + 100, 970, 50, 41, 1, 0, 0);
-    mutedButton->addComponent<SpriteComponent>("unmuted_up");
+    //thêm các nút chơi
+    Button->initButtons();
 
     //các khung viết chữ
     exitWriteName = &manager.addEntity();
@@ -233,14 +197,6 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
     writeName.addComponent<MiniText>(0, 0, "", "Type_name", white);
     writeName2.addComponent<MiniText>(0, 0, "", "Type_name", white);
     writeLeaderBoard.addComponent<MiniText>(0, 0, "", "Type_name", white);
-
-    //thêm màn hình quit
-    assets->AddTexture("quit", "assets/images/quit.png");
-    assets->AddTexture("quit_yes", "assets/images/quit_yes.png");
-    assets->AddTexture("quit_no", "assets/images/quit_no.png");
-    quitGame = &manager.addEntity();
-    quitGame->addComponent<TransformComponent>(0, 0, 256, 80, 1, 0, 0);
-    quitGame->addComponent<SpriteComponent>("quit");
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
@@ -275,7 +231,7 @@ void Game::handleEvents(){
 
     if (isSquashed) return;
     
-    if (!isPausedUp) SDL_PollEvent(&event); // nếu không ở trạng thái pause thì cập nhật bình thường 
+    if (!ButtonManager::isPausedUp) SDL_PollEvent(&event); // nếu không ở trạng thái pause thì cập nhật bình thường 
     
     else { // nếu ở trạng thái pause thì vì return luôn, không cho manager cập nhật nên phải dùng một biến event khác để bắt sự kiện nếu chuột bấm vào PauseScreen
         SDL_Event e;
@@ -293,12 +249,12 @@ void Game::handleEvents(){
                 int mouseX = ngumouseX + screen.x;// lấy tọa độ chuột trong map
                 int mouseY = ngumouseY + screen.y;
 
-                if (mouseX >= PauseScreen->getComponent<TransformComponent>().position.x &&
-                    mouseX <= PauseScreen->getComponent<TransformComponent>().position.x + PauseScreen->getComponent<TransformComponent>().width &&
-                    mouseY >= PauseScreen->getComponent<TransformComponent>().position.y &&
-                    mouseY <= PauseScreen->getComponent<TransformComponent>().position.y + PauseScreen->getComponent<TransformComponent>().height) {
+                if (mouseX >= ButtonManager::PauseScreen->getComponent<TransformComponent>().position.x &&
+                    mouseX <= ButtonManager::PauseScreen->getComponent<TransformComponent>().position.x + ButtonManager::PauseScreen->getComponent<TransformComponent>().width &&
+                    mouseY >= ButtonManager::PauseScreen->getComponent<TransformComponent>().position.y &&
+                    mouseY <= ButtonManager::PauseScreen->getComponent<TransformComponent>().position.y + ButtonManager::PauseScreen->getComponent<TransformComponent>().height) {
 
-                        isPausedUp = false;
+                        ButtonManager::isPausedUp = false;
                         assets->playSound("click_down", 0);
 
                 }
@@ -313,23 +269,23 @@ void Game::handleEvents(){
 void Game::update(){
 
     // chỉ update cho xe chạy nếu chưa nhấn nút chơi
-    if (!playButtonClickedUp) {
+    if (!ButtonManager::playButtonClickedUp) {
 
         manager.refresh();//8
         manager.update();//6 
 
-        if (quitGameUp) { // xử lí quitGame kể cả khi nút chơi chưa được ấn
-            if (quitGameYesUp) isRunning = false;
-            else if (quitGameNoUp) {
-                quitGameUp    = false;
-                quitGameNoUp  = false;
+        if (ButtonManager::quitGameUp) { // xử lí quitGame kể cả khi nút chơi chưa được ấn
+            if (ButtonManager::quitGameYesUp) isRunning = false;
+            else if (ButtonManager::quitGameNoUp) {
+                ButtonManager::quitGameUp    = false;
+                ButtonManager::quitGameNoUp  = false;
             }
         }
 
-        if (MutedButtonUp) { // thêm điều kiện này để có thể mute nhạc ngay khi chưa ấn play
+        if (ButtonManager::MutedButtonUp) { // thêm điều kiện này để có thể mute nhạc ngay khi chưa ấn play
             assets->MuteMusicAndSound();
         }
-        else if (unMutedButtonUp) {
+        else if (ButtonManager::unMutedButtonUp) {
             assets->unMuteMusicAndSound();
         }
 
@@ -338,7 +294,7 @@ void Game::update(){
     } 
 
     // nếu ấn PauseButton thì tạm thời không cập nhật
-    if (isPausedUp){
+    if (ButtonManager::isPausedUp){
         assets->pauseMusic();
         return;
     }
@@ -353,7 +309,7 @@ void Game::update(){
 
     //logo moving
     if (isLogoActive) {
-        if (playButtonClickedUp) {
+        if (ButtonManager::playButtonClickedUp) {
             logoPositionX += 8; // di chuyển logo sang phải
 
             if (logo.hasComponent<TransformComponent>()) {
@@ -442,11 +398,11 @@ void Game::update(){
         }
     }
 
-    if (quitGameYesUp) isRunning = false;
+    if (ButtonManager::quitGameYesUp) isRunning = false;
 
-    if (quitGameNoUp) {
-        quitGameUp = false;
-        quitGameNoUp = false;
+    if (ButtonManager::quitGameNoUp) {
+        ButtonManager::quitGameUp = false;
+        ButtonManager::quitGameNoUp = false;
     }
 
     // Khi phát hiện người chơi đến cuối map
@@ -612,84 +568,21 @@ void Game::render(){
         }
     }
     
-    if (playButtonClickedUp) { 
+    if (ButtonManager::playButtonClickedUp) { 
         scoreBoard.draw(); // Score text
-
-        // PauseButton cũng được vẽ nếu bấm nút chơi
-        if (!isPausedUp && !quitGameUp && !UIwriteName) {
-            // căn góc phải của màn hình
-            auto& pb = PauseButton->getComponent<TransformComponent>();
-            const int digit = 10;
-            pb.position.x = screen.x + WIDTH - pb.width - digit;
-            pb.position.y = screen.y + digit;
-
-            if (isPausedDown) PauseButton->getComponent<SpriteComponent>().setTex("pause_button_clicked");
-            else PauseButton->getComponent<SpriteComponent>().setTex("pause_button");
-            PauseButton->draw();
-        }
-
     }
     
     if (isLogoActive) {
         logo.draw();
     }
     
-    // vẽ button khi chưa thả nút ra  
-    if (!playButtonClickedUp && !LeaderBoardButtonUp) {
+    // Vẽ các nút chơi
+    Button->drawButtons();
 
-        // Cập nhật vị trí các nút theo camera (giống cách làm của PauseButton)
-        // Đặt các nút ở dưới màn hình
-        const int buttonMargin = 20; // Khoảng cách từ đáy màn hình
-        
-        // Nút Play ở giữa dưới
-        auto& playPos = playButton->getComponent<TransformComponent>();
-        playPos.position.x = screen.x + (WIDTH - playPos.width) / 2;
-        playPos.position.y = screen.y + HEIGHT - playPos.height - buttonMargin;
-        
-        // Nút Leaderboard ở bên trái của Play
-        auto& lbPos = LeaderBoardButton->getComponent<TransformComponent>();
-        lbPos.position.x = screen.x + (WIDTH - lbPos.width) / 2 - 100;
-        lbPos.position.y = screen.y + HEIGHT - lbPos.height - buttonMargin;
-        
-        // Nút Mute ở bên phải của Play
-        auto& mutePos = mutedButton->getComponent<TransformComponent>();
-        mutePos.position.x = screen.x + (WIDTH - mutePos.width) / 2 + 100;
-        mutePos.position.y = screen.y + HEIGHT - mutePos.height - buttonMargin;
-
-        //vẽ nút play
-        if (playButtonClickedDown) { // nếu nút được bấm
-            playButton->getComponent<SpriteComponent>().setTex("play_button_clicked");
-        }
-        else { // nút khi chưa được bấm
-            playButton->getComponent<SpriteComponent>().setTex("play_button");         
-        }
-        playButton->draw();
-
-        //vẽ nút leaderboard
-        if (LeaderBoardButtonDown) {
-            LeaderBoardButton->getComponent<SpriteComponent>().setTex("leaderboard_button_clicked");
-        }
-        else {
-            LeaderBoardButton->getComponent<SpriteComponent>().setTex("leaderboard_button");           
-        }
-        LeaderBoardButton->draw();
-
-        //vẽ nút mute
-        string tex;
-        if (MutedButtonUp && !unMutedButtonUp) {
-            tex = MutedButtonDown ? "muted_down" : "muted_up";
-        }
-        else if (unMutedButtonUp && !MutedButtonUp) {
-            tex = unMutedButtonDown ? "unmuted_down" : "unmuted_up";
-        }
-        mutedButton->getComponent<SpriteComponent>().setTex(tex);
-        mutedButton->draw();
-    }
-
-    if (UIwriteName && !exitGameloseUp) {
+    if (UIwriteName && !ButtonManager::exitGameloseUp) {
 
         SDL_Texture* tmp = assets->GetTexture("losing_screen");
-        if (exitGameloseDown) {
+        if (ButtonManager::exitGameloseDown) {
             tmp = assets->GetTexture("losing_screen_clicked");
         }
         
@@ -719,9 +612,9 @@ void Game::render(){
 
     }
 
-    if (LeaderBoardButtonUp && !exitLeaderBoardUp) {
+    if (ButtonManager::LeaderBoardButtonUp && !ButtonManager::exitLeaderBoardUp) {
         SDL_Texture* tmp = assets->GetTexture("leaderboard");
-        if (exitLeaderBoardDown) {
+        if (ButtonManager::exitLeaderBoardDown) {
             tmp = assets->GetTexture("leaderboard_clicked");
         }
 
@@ -741,56 +634,6 @@ void Game::render(){
         }
 
     }
-
-    if (isPausedUp) {
-        //vẽ một khung bán trong suốt
-        SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 180);
-        SDL_Rect  blur = {0,0, WIDTH, HEIGHT};
-        SDL_RenderFillRect(renderer, &blur);
-
-        //căn giữa 
-        SDL_Texture* pauseTex = assets->GetTexture("pause_screen");
-        int texW, texH;
-        //lấy kích thước của texture
-        SDL_QueryTexture(pauseTex, NULL, NULL, &texW, &texH);
-        SDL_Rect dst{(WIDTH  - texW) / 2, (HEIGHT - texH) / 2, texW, texH};
-
-        auto& ps = PauseScreen->getComponent<TransformComponent>();
-        ps.position.x = screen.x + dst.x;
-        ps.position.y = screen.y + dst.y;
-        ps.width = dst.w;
-        ps.height = dst.h;
-
-        // cout << ps.position.x << " " << ps.position.y << endl;
-
-        //Vẽ thẳng lên renderer
-        SDL_RenderCopy(renderer, pauseTex, NULL, &dst);
-
-    }
-
-    if (quitGameUp) {
-        SDL_Texture* tmp = assets->GetTexture("quit");
-        if (quitGameYesDown) {
-            tmp = assets->GetTexture("quit_yes");
-        }
-        else if (quitGameNoDown) {
-            tmp = assets->GetTexture("quit_no");
-        }
-
-        int texW, texH;
-        SDL_QueryTexture(tmp, NULL, NULL, &texW, &texH);
-        SDL_Rect dstRect = {(WIDTH - texW) / 2, (HEIGHT - texH) / 2, texW, texH};
-
-        // Cập nhật vị trí của quitGame entity
-        auto& qs = quitGame->getComponent<TransformComponent>();
-        qs.position.x = screen.x + dstRect.x;
-        qs.position.y = screen.y + dstRect.y;
-        qs.width = dstRect.w;
-        qs.height = dstRect.h;
-
-        SDL_RenderCopy(renderer, tmp, NULL, &dstRect); 
-    }
     }
     catch (const exception& e) {
         cout << "Error: " << e.what() << endl;
@@ -804,19 +647,13 @@ void Game::render(){
 
 void Game::resetGame() {
     // reset các trạng thái cần thiết
+    Button->resetButtons();
     UIwriteName = false;
-    playButtonClickedUp = false;
-    exitGameloseUp = false;
     isLogoActive = true;
     isTypingName = false;
     playerName = ""; // reset tên người chơi
     SDL_StopTextInput(); // dừng nhập tên
     leaderBoard->loadFromFile(); // load lai du lieu tu file leaderboard.txt 
-    LeaderBoardButtonUp = false;
-    exitLeaderBoardUp = false;
-    quitGameUp = false;
-    quitGameYesUp = false;
-    quitGameNoUp = false;
     lastCurrentMapIndex = currentMapIndex = 0;
     isMap2Loading = false;
     resetDone = false;
@@ -841,12 +678,12 @@ void Game::resetGame() {
             if (
                 e != &player &&
                 e != &logo &&
-                e != playButton &&
-                e != PauseButton &&
-                e != LeaderBoardButton &&
-                e != mutedButton &&
+                e != ButtonManager::playButton &&
+                e != ButtonManager::PauseButton &&
+                e != ButtonManager::LeaderBoardButton &&
+                e != ButtonManager::mutedButton &&
                 e != exitWriteName &&
-                e != quitGame &&
+                e != ButtonManager::quitGame &&
                 e->isActive()
             ) {
                 e->destroy();

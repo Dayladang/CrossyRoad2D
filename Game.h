@@ -45,45 +45,45 @@ public:
     static SDL_Rect screen;
     static AssetManager* assets;
 
-    static bool playButtonClickedUp;
-    static bool playButtonClickedDown;
-    static Entity* playButton; //28
+    // static bool playButtonClickedUp;
+    // static bool playButtonClickedDown;
+    // static Entity* playButton; //28
 
     static bool isLogoActive;
 
     static bool UIwriteName;
-    static bool exitGameloseUp;
-    static bool exitGameloseDown;
+    // static bool exitGameloseUp;
+    // static bool exitGameloseDown;
     static string playerName;
     static bool isTypingName;
 
     static LeaderBoard* leaderBoard;
-    static bool LeaderBoardButtonUp;
-    static bool LeaderBoardButtonDown;
-    static bool exitLeaderBoardUp;
-    static bool exitLeaderBoardDown;
-    static Entity* LeaderBoardButton;
+    // static bool LeaderBoardButtonUp;
+    // static bool LeaderBoardButtonDown;
+    // static bool exitLeaderBoardUp;
+    // static bool exitLeaderBoardDown;
+    // static Entity* LeaderBoardButton;
 
     static ScoreSystem* scoreSystem; 
     static int currentScore;
 
-    static bool isPausedUp;
-    static bool isPausedDown;
-    static Entity* PauseButton;
-    static Entity* PauseScreen;
+    // static bool isPausedUp;
+    // static bool isPausedDown;
+    // static Entity* PauseButton;
+    // static Entity* PauseScreen;
 
-    static Entity* quitGame;
-    static bool quitGameUp;
-    static bool quitGameNoUp;
-    static bool quitGameNoDown;
-    static bool quitGameYesUp;
-    static bool quitGameYesDown;
+    // static Entity* quitGame;
+    // static bool quitGameUp;
+    // static bool quitGameNoUp;
+    // static bool quitGameNoDown;
+    // static bool quitGameYesUp;
+    // static bool quitGameYesDown;
 
-    static Entity* mutedButton;
-    static bool unMutedButtonUp;
-    static bool unMutedButtonDown;
-    static bool MutedButtonUp;
-    static bool MutedButtonDown;
+    // static Entity* mutedButton;
+    // static bool unMutedButtonUp;
+    // static bool unMutedButtonDown;
+    // static bool MutedButtonUp;
+    // static bool MutedButtonDown;
 
     static bool isMap2Loading;
     static bool resetDone; // kiểm tra xem đã reset map mới chưa
