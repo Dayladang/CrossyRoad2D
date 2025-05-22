@@ -4,7 +4,7 @@
 #include "Vector2D.h"//8
 #include "Collision.h"//10
 #include "ECS/ECS.h" // 16
-#include "ButtonManager.h"
+#include "ButtonManager.h"// 44
 
 using namespace std;
 
@@ -200,7 +200,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap(mapList[2], 64, 32, 8, 0); //14 x = 64 vì trong map1.map có 64 dòng 
+    gameMap->LoadMap(mapList[0], 64, 32, 8, 0); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -220,7 +220,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //lấy phương tiện từ file và thêm các tính năng
 
-    gameMap->loadVehiclesForMap(2);
+    gameMap->loadVehiclesForMap(0);
 
     //phát âm thanh
     assets->playMusic("thememusic", -1);
