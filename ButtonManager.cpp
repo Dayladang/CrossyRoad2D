@@ -1,9 +1,8 @@
 #include "ButtonManager.h"
-// #include "Game.h"
+#include "Game.h"
 #include "ECS/Components.h"
 
 extern Manager manager; // sử dụng tiếp manager đã được khai báo ở Game.cpp
-class Game;
 
 ButtonManager::ButtonManager(){}
 ButtonManager::~ButtonManager(){}

@@ -200,7 +200,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //vẽ map
     gameMap = new Map("terrain", 1, 32);
-    gameMap->LoadMap(mapList[0], 64, 32, 8, 0); //14 x = 64 vì trong map1.map có 64 dòng 
+    gameMap->LoadMap(mapList[2], 64, 32, 8, 0); //14 x = 64 vì trong map1.map có 64 dòng 
 
     
     //vẽ nhân vật
@@ -220,7 +220,7 @@ void Game::initSDL(const int WIDTH, const int HEIGHT, const char* WINDOW_TITLE){
 
     //lấy phương tiện từ file và thêm các tính năng
 
-    gameMap->loadVehiclesForMap(0);
+    gameMap->loadVehiclesForMap(2);
 
     //phát âm thanh
     assets->playMusic("thememusic", -1);
@@ -529,9 +529,9 @@ void Game::update(){
     // cout << exitWriteName->getComponent<TransformComponent>().position.x << " "
     //     << exitWriteName->getComponent<TransformComponent>().position.y << endl;
 
-    // cout << "chicken position: (" 
-    // << player.getComponent<TransformComponent>().position.x << ", " 
-    // << player.getComponent<TransformComponent>().position.y << ")" << endl;
+    cout << "chicken position: (" 
+    << player.getComponent<TransformComponent>().position.x << ", " 
+    << player.getComponent<TransformComponent>().position.y << ")" << endl;
 
     // Debug để kiểm tra currentMapIndex
     // cout << "Player pos: " << player.getComponent<TransformComponent>().position.y 
